@@ -18,13 +18,17 @@ one of:
 | Environment variable       | Default                              | Description
 | -------------------------- | -------------------------------------| -----------
 | BIND_ADDR                  | :22900                               | The host and port to bind to
-| HIERARCHY_API_URL          | http://localhost:22600               | The host name for the Hierarchy API
-| DATASET_API_URL            | http://localhost:22000               | The host name for the Dataset API
-| KAFKA_ADDR                 | localhost:9092                       | A list of Kafka host addresses
 | CONSUMER_GROUP             | dp-search-builder                    | The name of the Kafka consumer group
-| CONSUMER_TOPIC             | hierarhy-built                       | The name of the topic to consumes messages from
+| DATASET_API_URL            | http://localhost:22000               | The host name for the Dataset API
 | GRACEFUL_SHUTDOWN_TIMEOUT  | 5s                                   | The graceful shutdown timeout
 | HEALTHCHECK_TIMEOUT        | 2s                                   | The timeout that the healthcheck allows for checked subsystems
+| HIERARCHY_API_URL          | http://localhost:22600               | The host name for the Hierarchy API
+| HIERARCHY_BUILT_TOPIC      | hierarchy-built                      | The name of the topic to consumes
+| KAFKA_ADDR                 | localhost:9092                       | A list of Kafka host addresses
+| KAFKA_MAX_BYTES            | 2000000                              | The max message size for kafka producer
+| REQUEST_MAX_RETRIES        | 3                                    | The maximum number of request retries messages from
+| SEARCH_BUILDER_URL         | http://localhost:22000               | The host name for the service
+
 
 ### Contributing
 
