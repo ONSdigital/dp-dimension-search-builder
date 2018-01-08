@@ -1,0 +1,77 @@
+{
+  "settings": {
+    "index": {
+      "number_of_replicas": 1,
+      "number_of_shards": 5,
+      "analysis": {
+        "filter": {
+          "autocomplete_filter": {
+            "max_gram": 35,
+            "min_gram": 1,
+            "type": "edge_ngram"
+          },
+          "collapse_whitespace_filter": {
+            "pattern": "\\s+",
+            "replacement": " ",
+            "type": "pattern_replace"
+          },
+        },
+        "analyzer": {
+          "raw_analyzer": {
+            "filter": [
+              "lowercase",
+              "collapse_whitespace_filter",
+              "trim"
+            ],
+            "tokenizer": "keyword",
+            "type": "custom"
+          }
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dimension_option": {
+      "properties": {
+        "code":    {
+          "fields": {
+            "raw": {
+              "analyzer": "raw_analyzer",
+              "type": "string",
+              "index_options": "docs",
+              "norms": {
+                "enabled": false
+              }
+            }
+          },
+          "type": "string"
+        },
+        "label": {
+          "fields": {
+            "raw": {
+              "analyzer": "raw_analyzer",
+              "type": "string",
+              "index_options": "docs",
+              "norms": {
+                "enabled": false
+              }
+            }
+          },
+          "type": "string"
+        },
+        "has_data": {
+          "index": "not_analyzed",
+          "type": "bool"
+        },
+        "number_of_children": {
+          "index": "not_analyzed",
+          "type": "integer"
+        },
+        "url": {
+          "index": "not_analyzed",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
