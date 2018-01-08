@@ -43,8 +43,8 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 		return instanceID, dimension, err
 	}
 
-	// TODO Create instance dimension index with mappings/settings in elastic
-	//      (if it exists already, overwrite but log out that you are overwriting)
+	// Create instance dimension index with mappings/settings in elastic
+	// (TODO if it exists already, overwrite but log out that you are overwriting)
 	elasticAPI := elastic.NewElasticSearchAPI(svc.HTTPClient, svc.ElasticSearchURL)
 	apiStatus, err := elasticAPI.CreateSearchIndex(ctx, instanceID, dimension)
 	if err != nil {
@@ -85,8 +85,8 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 		return instanceID, dimension, err
 	}
 
-	// TODO Once completed with no errors, then write new message to producer
-	//      `search-index-built` topic
+	// Once completed with no errors, then write new message to producer
+	// `search-index-built` topic
 	svc.Producer.Output() <- produceMessage
 
 	return instanceID, dimension, nil
@@ -118,7 +118,7 @@ func (svc *Service) addChildrenToSearchIndex(ctx context.Context, elasticAPI *el
 		URL:              dimensionOption.Links["code"].HRef,
 	}
 
-	// TODO Add child document to index
+	// Add child document to index
 	apiStatus, err := elasticAPI.AddDimensionOption(ctx, instanceID, dimension, esDimensionOption)
 	if err != nil {
 		log.Error(err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})

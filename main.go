@@ -38,14 +38,14 @@ func main() {
 	}
 
 	svc := &service.Service{
-		EnvMax:             envMax,
 		BindAddr:           cfg.BindAddr,
 		Consumer:           syncConsumerGroup,
+		ElasticSearchURL:   cfg.ElasticSearchAPIURL,
+		EnvMax:             envMax,
 		HealthcheckTimeout: cfg.HealthcheckTimeout,
 		HierarchyAPIURL:    cfg.HierarchyAPIURL,
 		MaxRetries:         cfg.MaxRetries,
 		Producer:           searchBuiltProducer,
-		SearchBuilderURL:   cfg.SearchBuilderURL,
 		Shutdown:           cfg.GracefulShutdownTimeout,
 	}
 
