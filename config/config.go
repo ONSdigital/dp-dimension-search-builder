@@ -14,6 +14,7 @@ type Config struct {
 	ConsumerTopic           string        `envconfig:"HIERARCHY_BUILT_TOPIC"`
 	ElasticSearchAPIURL     string        `envconfig:"ELASTIC_SEARCH_URL"`
 	GracefulShutdownTimeout time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
+	HealthcheckInterval     time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthcheckTimeout      time.Duration `envconfig:"HEALTHCHECK_TIMEOUT"`
 	HierarchyAPIURL         string        `envconfig:"HIERARCHY_API_URL"`
 	KafkaMaxBytes           string        `envconfig:"KAFKA_MAX_BYTES"`
@@ -34,8 +35,9 @@ func Get() (*Config, error) {
 		Brokers:                 []string{"localhost:9092"},
 		ConsumerGroup:           "dp-search-builder",
 		ConsumerTopic:           "hierarchy-built",
-		ElasticSearchAPIURL:     "http://localhost:9092",
+		ElasticSearchAPIURL:     "http://localhost:9200",
 		GracefulShutdownTimeout: 5 * time.Second,
+		HealthcheckInterval:     time.Minute,
 		HealthcheckTimeout:      2 * time.Second,
 		HierarchyAPIURL:         "http://localhost:22600",
 		KafkaMaxBytes:           "2000000",
