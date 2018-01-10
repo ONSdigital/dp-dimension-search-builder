@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"os"
 	"strconv"
 
 	"github.com/ONSdigital/dp-search-builder/config"
+	"github.com/ONSdigital/dp-search-builder/elastic"
 	"github.com/ONSdigital/dp-search-builder/service"
 	"github.com/ONSdigital/go-ns/kafka"
 	"github.com/ONSdigital/go-ns/log"
+	"github.com/ONSdigital/go-ns/rchttp"
 )
 
 func main() {
@@ -34,6 +37,14 @@ func main() {
 	searchBuiltProducer, err := kafka.NewProducer(cfg.Brokers, cfg.ProducerTopic, int(envMax))
 	if err != nil {
 		log.Error(err, nil)
+		os.Exit(1)
+	}
+
+	client := rchttp.DefaultClient
+	elasticSearchAPI := elastic.NewElasticSearchAPI(client, cfg.ElasticSearchAPIURL)
+	_, status, err := elasticSearchAPI.CallElastic(context.Background(), cfg.ElasticSearchAPIURL, "GET", nil)
+	if err != nil {
+		log.ErrorC("failed to start up, unable to connect to elastic search instance", err, log.Data{"http_status": status})
 		os.Exit(1)
 	}
 

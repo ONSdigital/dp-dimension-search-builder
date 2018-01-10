@@ -49,7 +49,7 @@ func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension str
 		return 0, err
 	}
 
-	_, status, err := api.callElastic(ctx, path, "PUT", indexMappings)
+	_, status, err := api.CallElastic(ctx, path, "PUT", indexMappings)
 	if err != nil {
 		return status, err
 	}
@@ -66,7 +66,7 @@ func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension st
 		return 0, err
 	}
 
-	_, status, err := api.callElastic(ctx, path, "POST", bytes)
+	_, status, err := api.CallElastic(ctx, path, "POST", bytes)
 	if err != nil {
 		return status, err
 	}
@@ -74,7 +74,8 @@ func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension st
 	return status, nil
 }
 
-func (api *API) callElastic(ctx context.Context, path, method string, payload interface{}) ([]byte, int, error) {
+// CallElastic ...
+func (api *API) CallElastic(ctx context.Context, path, method string, payload interface{}) ([]byte, int, error) {
 	logData := log.Data{"URL": path, "method": method}
 
 	URL, err := url.Parse(path)
