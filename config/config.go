@@ -20,6 +20,7 @@ type Config struct {
 	KafkaMaxBytes           string        `envconfig:"KAFKA_MAX_BYTES"`
 	MaxRetries              int           `envconfig:"REQUEST_MAX_RETRIES"`
 	ProducerTopic           string        `envconfig:"PRODUCER_TOPIC"`
+	SearchBuilderURL        string        `envconfig:"HIERARCHY_API_URL"`
 }
 
 var cfg *Config
@@ -43,6 +44,7 @@ func Get() (*Config, error) {
 		KafkaMaxBytes:           "2000000",
 		MaxRetries:              3,
 		ProducerTopic:           "search-built",
+		SearchBuilderURL:        "http://localhost:22900",
 	}
 
 	return cfg, envconfig.Process("", cfg)

@@ -31,6 +31,7 @@ func TestSpec(t *testing.T) {
 				So(cfg.KafkaMaxBytes, ShouldEqual, "2000000")
 				So(cfg.ProducerTopic, ShouldEqual, "search-built")
 				So(cfg.MaxRetries, ShouldEqual, 3)
+				So(cfg.SearchBuilderURL, ShouldEqual, "http://localhost:22900")
 			})
 		})
 	})

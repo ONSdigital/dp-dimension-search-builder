@@ -58,6 +58,7 @@ func main() {
 		HierarchyAPIURL:     cfg.HierarchyAPIURL,
 		MaxRetries:          cfg.MaxRetries,
 		Producer:            searchBuiltProducer,
+		SearchBuilderURL:    cfg.SearchBuilderURL,
 		Shutdown:            cfg.GracefulShutdownTimeout,
 	}
 

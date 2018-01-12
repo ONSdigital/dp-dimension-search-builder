@@ -47,7 +47,6 @@ func (svc *Service) Start() {
 
 	eventLoopContext, eventLoopCancel := context.WithCancel(context.Background())
 
-	//api.CreateSearchBuilderAPI(svc.SearchBuilderURL, svc.BindAddr, apiErrors)
 	healthChecker := healthcheck.NewServer(
 		svc.BindAddr,
 		svc.HealthcheckInterval,

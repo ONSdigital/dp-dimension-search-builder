@@ -50,6 +50,7 @@ one of:
 | KAFKA_MAX_BYTES            | 2000000                              | The max message size for kafka producer
 | REQUEST_MAX_RETRIES        | 3                                    | The maximum number of attempts for a single http request due to external service failure
 | PRODUCER_TOPIC             | search-built                         | The kafka topic to write messages to
+| SEARCH_BUILDER_URL         | http://localhost:22900               | The host name for the search builder
 
 
 ### Contributing
