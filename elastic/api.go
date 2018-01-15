@@ -44,7 +44,7 @@ func NewElasticSearchAPI(client *rchttp.Client, elasticSearchAPIURL string) *API
 func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
 	path := api.url + "/" + instanceID + "_" + dimension
 
-	indexMappings, err := ioutil.ReadFile("./mappings.json")
+	indexMappings, err := ioutil.ReadFile("./elastic/mappings.json")
 	if err != nil {
 		return 0, err
 	}
@@ -57,16 +57,33 @@ func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension str
 	return status, nil
 }
 
+// DeleteSearchIndex ...
+func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
+	path := api.url + "/" + instanceID + "_" + dimension
+
+	_, status, err := api.CallElastic(ctx, path, "DELETE", nil)
+	if err != nil {
+		return status, err
+	}
+
+	return status, nil
+}
+
 // AddDimensionOption ...
 func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension string, dimensionOption DimensionOption) (int, error) {
-	path := api.url + "/" + instanceID + "_" + dimension + "/_create"
+	log.Info("ADDing dimension option", log.Data{"dimension_option": dimensionOption})
+	if dimensionOption.Code == "" {
+		return 0, errors.New("missing dimension option code")
+	}
+
+	path := api.url + "/" + instanceID + "_" + dimension + "/hierarchy/" + dimensionOption.Code
 
 	bytes, err := json.Marshal(dimensionOption)
 	if err != nil {
 		return 0, err
 	}
 
-	_, status, err := api.CallElastic(ctx, path, "POST", bytes)
+	_, status, err := api.CallElastic(ctx, path, "PUT", bytes)
 	if err != nil {
 		return status, err
 	}
@@ -109,14 +126,17 @@ func (api *API) CallElastic(ctx context.Context, path, method string, payload in
 	defer resp.Body.Close()
 
 	logData["httpCode"] = resp.StatusCode
-	if resp.StatusCode < http.StatusOK || resp.StatusCode >= 300 {
-		return nil, resp.StatusCode, ErrorUnexpectedStatusCode
-	}
 
 	jsonBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.ErrorC("failed to read response body from call to elastic", err, logData)
 		return nil, resp.StatusCode, err
+	}
+	logData["jsonBody"] = string(jsonBody)
+
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= 300 {
+		log.Info("failed", log.Data{"status_code": resp.StatusCode, "url": path})
+		return nil, resp.StatusCode, ErrorUnexpectedStatusCode
 	}
 
 	return jsonBody, resp.StatusCode, nil

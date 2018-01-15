@@ -11,12 +11,12 @@ import (
 )
 
 type hierarchyBuilder struct {
-	Dimension  string `avro:"file_url"`
+	Dimension  string `avro:"dimension_name"`
 	InstanceID string `avro:"instance_id"`
 }
 
 type searchBuilder struct {
-	Dimension  string `avro:"file_url"`
+	Dimension  string `avro:"dimension_name"`
 	InstanceID string `avro:"instance_id"`
 }
 
@@ -44,9 +44,20 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 	}
 
 	// Create instance dimension index with mappings/settings in elastic
-	// (TODO if it exists already, overwrite but log out that you are overwriting)
 	elasticAPI := elastic.NewElasticSearchAPI(svc.HTTPClient, svc.ElasticSearchURL)
-	apiStatus, err := elasticAPI.CreateSearchIndex(ctx, instanceID, dimension)
+
+	// delete index if it already exists
+	apiStatus, err := elasticAPI.DeleteSearchIndex(ctx, instanceID, dimension)
+	if err != nil {
+		if apiStatus != 404 {
+			log.ErrorC("unable to remove index before creating new one", err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
+			return instanceID, dimension, err
+		}
+		log.Info("index removed before creating new one", log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
+	}
+
+	// create index
+	apiStatus, err = elasticAPI.CreateSearchIndex(ctx, instanceID, dimension)
 	if err != nil {
 		log.Error(err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 		return instanceID, dimension, err
