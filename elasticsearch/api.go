@@ -63,7 +63,7 @@ func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension str
 
 // AddDimensionOption ...
 func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension string, dimensionOption models.DimensionOption) (int, error) {
-	log.Info("ADDing dimension option", log.Data{"dimension_option": dimensionOption})
+	log.Info("adding dimension option", log.Data{"dimension_option": dimensionOption})
 	if dimensionOption.Code == "" {
 		return 0, errors.New("missing dimension option code")
 	}
