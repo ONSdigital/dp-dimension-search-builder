@@ -43,7 +43,9 @@ one of:
 | CONSUMER_GROUP             | dp-search-builder                    | The name of the Kafka consumer group
 | CONSUMER_TOPIC             | hierarhy-built                       | The name of the topic to consumes messages from
 | ELASTIC_SEARCH_URL         | http://localhost:9200                | The host name for elasticsearch
+| EVENT_REPORTER_TOPIC       | report-events                        | The kafka topic to send errors to
 | GRACEFUL_SHUTDOWN_TIMEOUT  | 5s                                   | The graceful shutdown timeout
+| HEALTHCHECK_INTERVAL       | 60s                                  | The interval between healthchecks
 | HEALTHCHECK_TIMEOUT        | 2s                                   | The timeout that the healthcheck allows for checked subsystems
 | HIERARCHY_API_URL          | http://localhost:22600               | The host name for the Hierarchy API
 | KAFKA_ADDR                 | localhost:9200                       | A list of Kafka host addresses

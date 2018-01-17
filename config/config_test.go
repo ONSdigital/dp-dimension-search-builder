@@ -24,6 +24,7 @@ func TestSpec(t *testing.T) {
 				So(cfg.ConsumerGroup, ShouldEqual, "dp-search-builder")
 				So(cfg.ConsumerTopic, ShouldEqual, "hierarchy-built")
 				So(cfg.ElasticSearchAPIURL, ShouldEqual, "http://localhost:9200")
+				So(cfg.EventReporterTopic, ShouldEqual, "report-events")
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthcheckInterval, ShouldEqual, 60*time.Second)
 				So(cfg.HealthcheckTimeout, ShouldEqual, 2*time.Second)

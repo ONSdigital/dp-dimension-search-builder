@@ -100,7 +100,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 
 	// Once completed with no errors, then write new message to producer
 	// `search-index-built` topic
-	svc.Producer.Output() <- produceMessage
+	svc.SearchBuiltProducer.Output() <- produceMessage
 
 	return instanceID, dimension, nil
 }

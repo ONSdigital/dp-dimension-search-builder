@@ -9,6 +9,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/ONSdigital/dp-reporter-client/reporter"
 	hierarchyHealthCheck "github.com/ONSdigital/go-ns/clients/hierarchy"
 	"github.com/ONSdigital/go-ns/elasticsearch"
 	"github.com/ONSdigital/go-ns/healthcheck"
@@ -19,18 +20,20 @@ import (
 
 // Service represents the necessary config for dp-dimension-extractor
 type Service struct {
-	EnvMax              int64
-	BindAddr            string
-	Consumer            *kafka.ConsumerGroup
-	ElasticSearchURL    string
-	HealthcheckInterval time.Duration
-	HealthcheckTimeout  time.Duration
-	HierarchyAPIURL     string
-	HTTPClient          *rchttp.Client
-	MaxRetries          int
-	Producer            kafka.Producer
-	SearchBuilderURL    string
-	Shutdown            time.Duration
+	EnvMax                   int64
+	BindAddr                 string
+	Consumer                 *kafka.ConsumerGroup
+	ElasticSearchURL         string
+	ErrorReporter            reporter.ImportErrorReporter
+	HealthcheckInterval      time.Duration
+	HealthcheckTimeout       time.Duration
+	HierarchyAPIURL          string
+	HTTPClient               *rchttp.Client
+	MaxRetries               int
+	SearchBuiltProducer      kafka.Producer
+	SearchBuilderErrProducer kafka.Producer
+	SearchBuilderURL         string
+	Shutdown                 time.Duration
 }
 
 // Start handles consumption of events
@@ -68,6 +71,17 @@ func (svc *Service) Start() {
 				instanceID, dimension, err := svc.handleMessage(eventLoopContext, message)
 				if err != nil {
 					log.ErrorC("event failed to process", err, log.Data{"instance_id": instanceID, "dimension": dimension})
+
+					if len(instanceID) == 0 {
+						log.ErrorC("instance_id is empty errorReporter.Notify will not be called", err, nil)
+					} else {
+						message := fmt.Sprintf("event failed to process, dimension is [%s]", dimension)
+						err = svc.ErrorReporter.Notify(instanceID, message, err)
+						if err != nil {
+							log.ErrorC("SearchBuilderErrProducer.Notify returned an error", err, log.Data{"instance_id": instanceID, "dimension": dimension})
+						}
+					}
+
 				} else {
 					log.Debug("event successfully processed", log.Data{"instance_id": instanceID, "dimension": dimension})
 				}
@@ -86,8 +100,10 @@ func (svc *Service) Start() {
 		log.Debug("Quitting after os signal received", log.Data{"signal": signal})
 	case consumerError := <-svc.Consumer.Errors():
 		log.Error(fmt.Errorf("aborting consumer"), log.Data{"message_received": consumerError})
-	case producerError := <-svc.Producer.Errors():
-		log.Error(fmt.Errorf("aborting producer"), log.Data{"message_received": producerError})
+	case searchBuiltProducerError := <-svc.SearchBuiltProducer.Errors():
+		log.Error(fmt.Errorf("aborting producer"), log.Data{"message_received": searchBuiltProducerError})
+	case searchBuilderProducerError := <-svc.SearchBuilderErrProducer.Errors():
+		log.Error(fmt.Errorf("aborting producer"), log.Data{"message_received": searchBuilderProducerError})
 	case <-errorChannel:
 		log.Error(fmt.Errorf("server error forcing shutdown"), nil)
 	}
@@ -102,9 +118,10 @@ func (svc *Service) Start() {
 		eventLoopCancel()
 		<-eventLoopDone
 
-		log.Debug("Closing kafka producer", nil)
-		svc.Producer.Close(ctx)
-		log.Debug("Closed kafka producer", nil)
+		log.Debug("Closing kafka producers", nil)
+		svc.SearchBuiltProducer.Close(ctx)
+		svc.SearchBuilderErrProducer.Close(ctx)
+		log.Debug("Closed kafka producers", nil)
 		log.Debug("Closing kafka consumer", nil)
 		svc.Consumer.Close(ctx)
 		log.Debug("Closed kafka consumer", nil)

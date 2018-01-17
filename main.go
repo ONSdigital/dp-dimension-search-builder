@@ -5,8 +5,9 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/ONSdigital/dp-reporter-client/reporter"
 	"github.com/ONSdigital/dp-search-builder/config"
-	"github.com/ONSdigital/dp-search-builder/elastic"
+	"github.com/ONSdigital/dp-search-builder/elasticsearch"
 	"github.com/ONSdigital/dp-search-builder/service"
 	"github.com/ONSdigital/go-ns/kafka"
 	"github.com/ONSdigital/go-ns/log"
@@ -40,11 +41,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	searchBuilderErrProducer, err := kafka.NewProducer(cfg.Brokers, cfg.EventReporterTopic, int(envMax))
+	if err != nil {
+		log.Error(err, nil)
+		os.Exit(1)
+	}
+
 	client := rchttp.DefaultClient
-	elasticSearchAPI := elastic.NewElasticSearchAPI(client, cfg.ElasticSearchAPIURL)
+	elasticSearchAPI := elasticsearch.NewElasticSearchAPI(client, cfg.ElasticSearchAPIURL)
 	_, status, err := elasticSearchAPI.CallElastic(context.Background(), cfg.ElasticSearchAPIURL, "GET", nil)
 	if err != nil {
 		log.ErrorC("failed to start up, unable to connect to elastic search instance", err, log.Data{"http_status": status})
+		os.Exit(1)
+	}
+
+	errorReporter, err := reporter.NewImportErrorReporter(searchBuilderErrProducer, log.Namespace)
+	if err != nil {
+		log.ErrorC("error while attempting to create error reporter client", err, nil)
 		os.Exit(1)
 	}
 
@@ -53,11 +66,12 @@ func main() {
 		Consumer:            syncConsumerGroup,
 		ElasticSearchURL:    cfg.ElasticSearchAPIURL,
 		EnvMax:              envMax,
+		ErrorReporter:       errorReporter,
 		HealthcheckInterval: cfg.HealthcheckInterval,
 		HealthcheckTimeout:  cfg.HealthcheckTimeout,
 		HierarchyAPIURL:     cfg.HierarchyAPIURL,
 		MaxRetries:          cfg.MaxRetries,
-		Producer:            searchBuiltProducer,
+		SearchBuiltProducer: searchBuiltProducer,
 		SearchBuilderURL:    cfg.SearchBuilderURL,
 		Shutdown:            cfg.GracefulShutdownTimeout,
 	}
