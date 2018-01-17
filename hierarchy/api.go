@@ -37,8 +37,8 @@ var (
 
 const method = "GET"
 
-// GetRootDimenisionOption queries the Hierarchy API to get the root dimension option for hierarchy
-func (api *API) GetRootDimenisionOption(ctx context.Context, instanceID, dimension string) (rootDimensionOption *models.Response, err error) {
+// GetRootDimensionOption queries the Hierarchy API to get the root dimension option for hierarchy
+func (api *API) GetRootDimensionOption(ctx context.Context, instanceID, dimension string) (rootDimensionOption *models.Response, err error) {
 	path := api.url + "/hierarchies/" + instanceID + "/" + dimension
 	logData := log.Data{"func": "GetRootDimenisionOption", "URL": path, "instance_id": instanceID, "dimension": dimension}
 
@@ -59,8 +59,8 @@ func (api *API) GetRootDimenisionOption(ctx context.Context, instanceID, dimensi
 	return
 }
 
-// GetDimenisionOption queries the Hierarchy API to get a dimension option for hierarchy
-func (api *API) GetDimenisionOption(ctx context.Context, instanceID, dimension, codeID string) (dimensionOption *models.Response, err error) {
+// GetDimensionOption queries the Hierarchy API to get a dimension option for hierarchy
+func (api *API) GetDimensionOption(ctx context.Context, instanceID, dimension, codeID string) (dimensionOption *models.Response, err error) {
 	path := api.url + "/hierarchies/" + instanceID + "/" + dimension + "/" + codeID
 	logData := log.Data{"func": "GetDimenisionOption", "URL": path, "instance_id": instanceID, "dimension": dimension, "code_id": codeID}
 

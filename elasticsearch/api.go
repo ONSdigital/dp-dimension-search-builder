@@ -1,4 +1,4 @@
-package elastic
+package elasticsearch
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/ONSdigital/dp-search-builder/models"
 	"github.com/ONSdigital/go-ns/log"
 	"github.com/ONSdigital/go-ns/rchttp"
 )
@@ -17,22 +18,13 @@ import (
 // the status received from elastic is not as expected
 var ErrorUnexpectedStatusCode = errors.New("unexpected status code from api")
 
-// DimensionOption represents the json structure for loading a single document into elastic
-type DimensionOption struct {
-	Code             string `json:"code"`
-	HasData          bool   `json:"has_data"`
-	Label            string `json:"label"`
-	NumberOfChildren int64  `json:"number_of_children"`
-	URL              string `json:"url,omitempty"`
-}
-
 // API aggregates a client and URL and other common data for accessing the API
 type API struct {
 	client *rchttp.Client
 	url    string
 }
 
-// NewElasticSearchAPI creates an HierarchyAPI object
+// NewElasticSearchAPI creates an ElasticSearchAPI object
 func NewElasticSearchAPI(client *rchttp.Client, elasticSearchAPIURL string) *API {
 	return &API{
 		client: client,
@@ -44,7 +36,7 @@ func NewElasticSearchAPI(client *rchttp.Client, elasticSearchAPIURL string) *API
 func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
 	path := api.url + "/" + instanceID + "_" + dimension
 
-	indexMappings, err := ioutil.ReadFile("./elastic/mappings.json")
+	indexMappings, err := ioutil.ReadFile("./elasticsearch/mappings.json")
 	if err != nil {
 		return 0, err
 	}
@@ -70,7 +62,7 @@ func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension str
 }
 
 // AddDimensionOption ...
-func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension string, dimensionOption DimensionOption) (int, error) {
+func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension string, dimensionOption models.DimensionOption) (int, error) {
 	log.Info("ADDing dimension option", log.Data{"dimension_option": dimensionOption})
 	if dimensionOption.Code == "" {
 		return 0, errors.New("missing dimension option code")

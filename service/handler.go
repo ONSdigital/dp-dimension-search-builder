@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/ONSdigital/dp-hierarchy-api/models"
-	"github.com/ONSdigital/dp-search-builder/elastic"
+	"github.com/ONSdigital/dp-search-builder/elasticsearch"
 	"github.com/ONSdigital/dp-search-builder/hierarchy"
+	"github.com/ONSdigital/dp-search-builder/models"
 	"github.com/ONSdigital/dp-search-builder/schema"
 	"github.com/ONSdigital/go-ns/kafka"
 	"github.com/ONSdigital/go-ns/log"
@@ -34,20 +34,22 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 	instanceID := event.InstanceID
 	dimension := event.Dimension
 
+	apis := &APIs{
+		hierarchyAPI: hierarchy.NewHierarchyAPI(svc.HTTPClient, svc.HierarchyAPIURL),
+		elasticAPI:   elasticsearch.NewElasticSearchAPI(svc.HTTPClient, svc.ElasticSearchURL),
+	}
+
 	// Make request to Hierarchy API to get "Super Parent" for dimension
 	// hierarchy and add super parent to elastic
-	hierarchyAPI := hierarchy.NewHierarchyAPI(svc.HTTPClient, svc.HierarchyAPIURL)
-	rootDimensionOption, err := hierarchyAPI.GetRootDimenisionOption(ctx, instanceID, dimension)
+	rootDimensionOption, err := apis.hierarchyAPI.GetRootDimensionOption(ctx, instanceID, dimension)
 	if err != nil {
 		log.Error(err, log.Data{"instance_id": instanceID, "dimension": dimension})
 		return instanceID, dimension, err
 	}
 
 	// Create instance dimension index with mappings/settings in elastic
-	elasticAPI := elastic.NewElasticSearchAPI(svc.HTTPClient, svc.ElasticSearchURL)
-
 	// delete index if it already exists
-	apiStatus, err := elasticAPI.DeleteSearchIndex(ctx, instanceID, dimension)
+	apiStatus, err := apis.elasticAPI.DeleteSearchIndex(ctx, instanceID, dimension)
 	if err != nil {
 		if apiStatus != 404 {
 			log.ErrorC("unable to remove index before creating new one", err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
@@ -57,13 +59,13 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 	}
 
 	// create index
-	apiStatus, err = elasticAPI.CreateSearchIndex(ctx, instanceID, dimension)
+	apiStatus, err = apis.elasticAPI.CreateSearchIndex(ctx, instanceID, dimension)
 	if err != nil {
 		log.Error(err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 		return instanceID, dimension, err
 	}
 
-	dimensionOption := elastic.DimensionOption{
+	dimensionOption := models.DimensionOption{
 		Code:             rootDimensionOption.Links["code"].ID,
 		HasData:          rootDimensionOption.HasData,
 		Label:            rootDimensionOption.Label,
@@ -72,7 +74,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 	}
 
 	// Add parent document to index
-	apiStatus, err = elasticAPI.AddDimensionOption(ctx, instanceID, dimension, dimensionOption)
+	apiStatus, err = apis.elasticAPI.AddDimensionOption(ctx, instanceID, dimension, dimensionOption)
 	if err != nil {
 		log.Error(err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 		return instanceID, dimension, err
@@ -82,7 +84,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 	for _, child := range rootDimensionOption.Children {
 		codeID := child.Links["self"].ID
 
-		if err = svc.addChildrenToSearchIndex(ctx, elasticAPI, hierarchyAPI, instanceID, dimension, codeID); err != nil {
+		if err = apis.addChildrenToSearchIndex(ctx, instanceID, dimension, codeID); err != nil {
 			log.Error(err, log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
 			return instanceID, dimension, err
 		}
@@ -111,50 +113,4 @@ func readMessage(eventValue []byte) (*hierarchyBuilder, error) {
 	}
 
 	return &h, nil
-}
-
-func (svc *Service) addChildrenToSearchIndex(ctx context.Context, elasticAPI *elastic.API, hierarchyAPI *hierarchy.API, instanceID, dimension, codeID string) error {
-	// Get a child document for dimension hierarchy
-	dimensionOption, err := hierarchyAPI.GetDimenisionOption(ctx, instanceID, dimension, codeID)
-	if err != nil {
-		log.Error(err, log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID}) // Possibly want to log this out higher up the tree
-		return err
-	}
-
-	esDimensionOption := elastic.DimensionOption{
-		Code:             dimensionOption.Links["code"].ID,
-		HasData:          dimensionOption.HasData,
-		Label:            dimensionOption.Label,
-		NumberOfChildren: dimensionOption.NoOfChildren,
-		URL:              dimensionOption.Links["code"].HRef,
-	}
-
-	// Add child document to index
-	apiStatus, err := elasticAPI.AddDimensionOption(ctx, instanceID, dimension, esDimensionOption)
-	if err != nil {
-		log.Error(err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
-		return err
-	}
-
-	// Iterate through children and make request to get their data and add to
-	// elastic index. This should keep looping through next set of children
-	// until there are no children left
-	if err = svc.iterateOverChildren(ctx, elasticAPI, hierarchyAPI, instanceID, dimension, dimensionOption.Children); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (svc *Service) iterateOverChildren(ctx context.Context, elasticAPI *elastic.API, hierarchyAPI *hierarchy.API, instanceID, dimension string, children []*models.Element) error {
-	for _, child := range children {
-		codeID := child.Links["self"].ID
-
-		if err := svc.addChildrenToSearchIndex(ctx, elasticAPI, hierarchyAPI, instanceID, dimension, codeID); err != nil {
-			log.Error(err, log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
-			return err
-		}
-	}
-
-	return nil
 }
