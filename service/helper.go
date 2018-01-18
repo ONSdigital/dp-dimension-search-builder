@@ -25,11 +25,11 @@ func (apis *APIs) addChildrenToSearchIndex(ctx context.Context, instanceID, dime
 	}
 
 	esDimensionOption := models.DimensionOption{
-		Code:             dimensionOption.Links["code"].ID,
+		Code:             dimensionOption.Links["self"].ID,
 		HasData:          dimensionOption.HasData,
 		Label:            dimensionOption.Label,
 		NumberOfChildren: dimensionOption.NoOfChildren,
-		URL:              dimensionOption.Links["code"].HRef,
+		URL:              dimensionOption.Links["self"].HRef,
 	}
 
 	// Add child document to index
