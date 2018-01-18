@@ -55,6 +55,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 			log.ErrorC("unable to remove index before creating new one", err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 			return instanceID, dimension, err
 		}
+	} else {
 		log.Info("index removed before creating new one", log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 	}
 
