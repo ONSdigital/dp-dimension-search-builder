@@ -32,7 +32,7 @@ func NewElasticSearchAPI(client *rchttp.Client, elasticSearchAPIURL string) *API
 	}
 }
 
-// CreateSearchIndex ...
+// CreateSearchIndex creates a new index in elastic search
 func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
 	path := api.url + "/" + instanceID + "_" + dimension
 
@@ -49,7 +49,7 @@ func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension str
 	return status, nil
 }
 
-// DeleteSearchIndex ...
+// DeleteSearchIndex removes an index from elastic search
 func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
 	path := api.url + "/" + instanceID + "_" + dimension
 
@@ -61,7 +61,7 @@ func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension str
 	return status, nil
 }
 
-// AddDimensionOption ...
+// AddDimensionOption adds a document to an elastic search index
 func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension string, dimensionOption models.DimensionOption) (int, error) {
 	log.Info("adding dimension option", log.Data{"dimension_option": dimensionOption})
 	if dimensionOption.Code == "" {
@@ -83,7 +83,7 @@ func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension st
 	return status, nil
 }
 
-// CallElastic ...
+// CallElastic builds a request to elastic search based on the method, path and payload
 func (api *API) CallElastic(ctx context.Context, path, method string, payload interface{}) ([]byte, int, error) {
 	logData := log.Data{"URL": path, "method": method}
 
