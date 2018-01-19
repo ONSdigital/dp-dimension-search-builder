@@ -40,11 +40,11 @@ const method = "GET"
 // GetRootDimensionOption queries the Hierarchy API to get the root dimension option for hierarchy
 func (api *API) GetRootDimensionOption(ctx context.Context, instanceID, dimension string) (rootDimensionOption *models.Response, err error) {
 	path := api.url + "/hierarchies/" + instanceID + "/" + dimension
-	logData := log.Data{"func": "GetRootDimenisionOption", "URL": path, "instance_id": instanceID, "dimension": dimension}
+	logData := log.Data{"func": "GetRootDimensionOption", "url": path, "instance_id": instanceID, "dimension": dimension}
 
 	jsonResult, httpCode, err := api.callHierarchyAPI(ctx, path)
-	logData["httpCode"] = httpCode
-	logData["jsonResult"] = jsonResult
+	logData["http_code"] = httpCode
+	logData["json_result"] = jsonResult
 	if err != nil {
 		log.ErrorC("api get", err, logData)
 		return nil, handleError(httpCode, err, "root dimension option")
@@ -62,11 +62,11 @@ func (api *API) GetRootDimensionOption(ctx context.Context, instanceID, dimensio
 // GetDimensionOption queries the Hierarchy API to get a dimension option for hierarchy
 func (api *API) GetDimensionOption(ctx context.Context, instanceID, dimension, codeID string) (dimensionOption *models.Response, err error) {
 	path := api.url + "/hierarchies/" + instanceID + "/" + dimension + "/" + codeID
-	logData := log.Data{"func": "GetDimenisionOption", "URL": path, "instance_id": instanceID, "dimension": dimension, "code_id": codeID}
+	logData := log.Data{"func": "GetDimensionOption", "url": path, "instance_id": instanceID, "dimension": dimension, "code_id": codeID}
 
 	jsonResult, httpCode, err := api.callHierarchyAPI(ctx, path)
-	logData["httpCode"] = httpCode
-	logData["jsonResult"] = jsonResult
+	logData["http_code"] = httpCode
+	logData["json_result"] = jsonResult
 	if err != nil {
 		log.ErrorC("api get", err, logData)
 		return nil, handleError(httpCode, err, "dimension option")
@@ -83,7 +83,7 @@ func (api *API) GetDimensionOption(ctx context.Context, instanceID, dimension, c
 
 // callHierarchyAPI contacts the Hierarchy API returns the json body
 func (api *API) callHierarchyAPI(ctx context.Context, path string) ([]byte, int, error) {
-	logData := log.Data{"URL": path, "method": method}
+	logData := log.Data{"url": path, "method": method}
 
 	URL, err := url.Parse(path)
 	if err != nil {
@@ -91,7 +91,7 @@ func (api *API) callHierarchyAPI(ctx context.Context, path string) ([]byte, int,
 		return nil, 0, err
 	}
 	path = URL.String()
-	logData["URL"] = path
+	logData["url"] = path
 
 	req, err := http.NewRequest(method, path, nil)
 	if err != nil {
@@ -106,7 +106,7 @@ func (api *API) callHierarchyAPI(ctx context.Context, path string) ([]byte, int,
 	}
 	defer resp.Body.Close()
 
-	logData["httpCode"] = resp.StatusCode
+	logData["http_code"] = resp.StatusCode
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= 300 {
 		return nil, resp.StatusCode, ErrorUnexpectedStatusCode
 	}

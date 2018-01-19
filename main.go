@@ -15,13 +15,13 @@ import (
 )
 
 func main() {
+	log.Namespace = "dp-search-builder"
+
 	cfg, err := config.Get()
 	if err != nil {
 		log.Error(err, nil)
 		os.Exit(1)
 	}
-
-	log.Namespace = "dp-search-builder"
 
 	envMax, err := strconv.ParseInt(cfg.KafkaMaxBytes, 10, 32)
 	if err != nil {
@@ -29,7 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	syncConsumerGroup, err := kafka.NewSyncConsumer(cfg.Brokers, cfg.ConsumerTopic, cfg.ConsumerGroup, kafka.OffsetNewest)
+	syncConsumerGroup, err := kafka.NewSyncConsumer(cfg.Brokers, cfg.ConsumerTopic, cfg.ConsumerGroup, kafka.OffsetOldest)
 	if err != nil {
 		log.ErrorC("could not obtain consumer", err, nil)
 		os.Exit(1)

@@ -74,7 +74,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 		URL:              rootDimensionOption.Links["code"].HRef,
 	}
 
-	// Add parent document to index
+	// Add root node document to index
 	apiStatus, err = apis.elasticAPI.AddDimensionOption(ctx, instanceID, dimension, dimensionOption)
 	if err != nil {
 		log.Error(err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})

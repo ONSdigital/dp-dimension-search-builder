@@ -6,4 +6,5 @@ export GOPATH=$cwd/go
 
 pushd $GOPATH/src/github.com/ONSdigital/dp-search-builder
   make build && mv build/$(go env GOOS)-$(go env GOARCH)/* $cwd/build
+  mkdir $cwd/build/elasticsearch && mv elasticsearch/mappings.json $cwd/build/elasticsearch/
 popd

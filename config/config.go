@@ -21,7 +21,7 @@ type Config struct {
 	KafkaMaxBytes           string        `envconfig:"KAFKA_MAX_BYTES"`
 	MaxRetries              int           `envconfig:"REQUEST_MAX_RETRIES"`
 	ProducerTopic           string        `envconfig:"PRODUCER_TOPIC"`
-	SearchBuilderURL        string        `envconfig:"HIERARCHY_API_URL"`
+	SearchBuilderURL        string        `envconfig:"SEARCH_BUILDER_URL"`
 }
 
 var cfg *Config

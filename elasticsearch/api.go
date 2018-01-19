@@ -85,7 +85,7 @@ func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension st
 
 // CallElastic builds a request to elastic search based on the method, path and payload
 func (api *API) CallElastic(ctx context.Context, path, method string, payload interface{}) ([]byte, int, error) {
-	logData := log.Data{"URL": path, "method": method}
+	logData := log.Data{"url": path, "method": method}
 
 	URL, err := url.Parse(path)
 	if err != nil {
@@ -93,7 +93,7 @@ func (api *API) CallElastic(ctx context.Context, path, method string, payload in
 		return nil, 0, err
 	}
 	path = URL.String()
-	logData["URL"] = path
+	logData["url"] = path
 
 	var req *http.Request
 
@@ -112,22 +112,23 @@ func (api *API) CallElastic(ctx context.Context, path, method string, payload in
 
 	resp, err := api.client.Do(ctx, req)
 	if err != nil {
-		log.ErrorC("Failed to call elastic", err, logData)
+		log.ErrorC("failed to call elastic", err, logData)
 		return nil, 0, err
 	}
 	defer resp.Body.Close()
 
-	logData["httpCode"] = resp.StatusCode
+	logData["http_code"] = resp.StatusCode
 
 	jsonBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.ErrorC("failed to read response body from call to elastic", err, logData)
 		return nil, resp.StatusCode, err
 	}
-	logData["jsonBody"] = string(jsonBody)
+	logData["json_body"] = string(jsonBody)
+	logData["status_code"] = resp.StatusCode
 
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= 300 {
-		log.Info("failed", log.Data{"status_code": resp.StatusCode, "url": path})
+		log.ErrorC("failed", ErrorUnexpectedStatusCode, logData)
 		return nil, resp.StatusCode, ErrorUnexpectedStatusCode
 	}
 

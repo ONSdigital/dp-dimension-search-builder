@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -69,25 +70,26 @@ func (svc *Service) Start() {
 			case message := <-svc.Consumer.Incoming():
 
 				instanceID, dimension, err := svc.handleMessage(eventLoopContext, message)
+				logData := log.Data{"func": "service.Start.eventLoop", "instance_id": instanceID, "dimension": dimension, "kafka_offset": message.Offset()}
 				if err != nil {
-					log.ErrorC("event failed to process", err, log.Data{"instance_id": instanceID, "dimension": dimension})
+					log.ErrorC("event failed to process", err, logData)
 
 					if len(instanceID) == 0 {
-						log.ErrorC("instance_id is empty errorReporter.Notify will not be called", err, nil)
+						log.ErrorC("instance_id is empty errorReporter.Notify will not be called", err, logData)
 					} else {
 						message := fmt.Sprintf("event failed to process, dimension is [%s]", dimension)
 						err = svc.ErrorReporter.Notify(instanceID, message, err)
 						if err != nil {
-							log.ErrorC("SearchBuilderErrProducer.Notify returned an error", err, log.Data{"instance_id": instanceID, "dimension": dimension})
+							log.ErrorC("ErrorProducer.Notify returned an error", err, logData)
 						}
 					}
 
 				} else {
-					log.Debug("event successfully processed", log.Data{"instance_id": instanceID, "dimension": dimension})
+					log.Debug("event successfully processed", logData)
 				}
 
 				svc.Consumer.CommitAndRelease(message)
-				log.Debug("message committed", log.Data{"instance_id": instanceID, "dimension": dimension})
+				log.Debug("message committed", logData)
 			}
 		}
 	}()
@@ -95,17 +97,17 @@ func (svc *Service) Start() {
 	// block until a fatal error, signal or eventLoopDone - then proceed to shutdown
 	select {
 	case <-eventLoopDone:
-		log.Debug("Quitting after done was closed", nil)
+		log.Debug("after eventLoopDone was closed", nil)
 	case signal := <-signals:
-		log.Debug("Quitting after os signal received", log.Data{"signal": signal})
+		log.Debug("quitting after os signal received", log.Data{"signal": signal})
 	case consumerError := <-svc.Consumer.Errors():
-		log.Error(fmt.Errorf("aborting consumer"), log.Data{"message_received": consumerError})
+		log.Error(errors.New("aborting consumer"), log.Data{"message_received": consumerError})
 	case searchBuiltProducerError := <-svc.SearchBuiltProducer.Errors():
-		log.Error(fmt.Errorf("aborting producer"), log.Data{"message_received": searchBuiltProducerError})
+		log.Error(errors.New("aborting producer"), log.Data{"message_received": searchBuiltProducerError})
 	case searchBuilderProducerError := <-svc.SearchBuilderErrProducer.Errors():
-		log.Error(fmt.Errorf("aborting producer"), log.Data{"message_received": searchBuilderProducerError})
+		log.Error(errors.New("aborting producer"), log.Data{"message_received": searchBuilderProducerError})
 	case <-errorChannel:
-		log.Error(fmt.Errorf("server error forcing shutdown"), nil)
+		log.Error(errors.New("server error forcing shutdown"), nil)
 	}
 
 	// give the app `Timeout` seconds to close gracefully before killing it.

@@ -2,13 +2,13 @@ dp-search-builder
 ==================
 
 Handles inserting of dimension options into elasticsearch once a hierarchy for an instance becomes available;
-and creates an event by sending a message to the search-built kafka topic so services know when the data has successfully been inserted into elastic.
+and creates an event by sending a message to the kafka `$PRODUCER_TOPIC` so services know when the data has successfully been inserted into elastic.
 
-1. Consumes from the HIERARCHY_BUILT_TOPIC
-2. Retrieves super parent dimension option for hierarchy via the hierarchy API.
-3. Creates elastic search index `/<instance_id>_>dimension` and adds parent dimension option.
-4. Retrieves all descendants (children) of the super parent and writes data to elastic search index
-5. Produces a message to the SEARCH_BUILT_TOPIC
+1. Consumes from the `$HIERARCHY_BUILT_TOPIC`
+2. Retrieves the root node of the hierarchy via the hierarchy API, to get the root dimension option
+3. Creates elastic search index `/<instance_id>_<dimension>` and adds parent dimension option
+4. Retrieves all nodes in the tree below the root node and writing the data to the elasticsearch index
+5. Produces a message to the `$SEARCH_BUILT_TOPIC`
 
 Requirements
 -----------------
@@ -43,7 +43,7 @@ one of:
 | -------------------------- | -------------------------------------| -----------
 | BIND_ADDR                  | :22900                               | The host and port to bind to
 | CONSUMER_GROUP             | dp-search-builder                    | The name of the Kafka consumer group
-| CONSUMER_TOPIC             | hierarhy-built                       | The name of the topic to consumes messages from
+| CONSUMER_TOPIC             | hierarchy-built                       | The name of the topic to consumes messages from
 | ELASTIC_SEARCH_URL         | http://localhost:9200                | The host name for elasticsearch
 | EVENT_REPORTER_TOPIC       | report-events                        | The kafka topic to send errors to
 | GRACEFUL_SHUTDOWN_TIMEOUT  | 5s                                   | The graceful shutdown timeout

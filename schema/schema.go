@@ -26,7 +26,7 @@ var searchIndexBuilt = `{
   ]
 }`
 
-// SearchIndexBuiltSchema is the Avro schema for each dimension hierarhy successfuly sent to elastic
+// SearchIndexBuiltSchema is the Avro schema for each dimension hierarchy successfuly sent to elastic
 var SearchIndexBuiltSchema *avro.Schema = &avro.Schema{
 	Definition: searchIndexBuilt,
 }
