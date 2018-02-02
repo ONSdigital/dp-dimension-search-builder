@@ -1,10 +1,10 @@
 package service
 
 import (
+	"github.com/ONSdigital/dp-import/events"
 	"github.com/ONSdigital/dp-search-builder/elasticsearch"
 	"github.com/ONSdigital/dp-search-builder/hierarchy"
 	"github.com/ONSdigital/dp-search-builder/models"
-	"github.com/ONSdigital/dp-search-builder/schema"
 	"github.com/ONSdigital/go-ns/kafka"
 	"github.com/ONSdigital/go-ns/log"
 	"golang.org/x/net/context"
@@ -24,7 +24,6 @@ type searchBuilder struct {
 // hierarchy API and sending data into search index before producing a new
 // message to confirm successful completion
 func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (string, string, error) {
-
 	event, err := readMessage(message.GetData())
 	if err != nil {
 		log.Error(err, log.Data{"schema": "failed to unmarshal event"})
@@ -91,7 +90,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 		}
 	}
 
-	produceMessage, err := schema.SearchIndexBuiltSchema.Marshal(&searchBuilder{
+	produceMessage, err := events.SearchIndexBuiltSchema.Marshal(&searchBuilder{
 		Dimension:  dimension,
 		InstanceID: instanceID,
 	})
@@ -109,7 +108,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 func readMessage(eventValue []byte) (*hierarchyBuilder, error) {
 	var h hierarchyBuilder
 
-	if err := schema.HierarchyBuiltSchema.Unmarshal(eventValue, &h); err != nil {
+	if err := events.HierarchyBuiltSchema.Unmarshal(eventValue, &h); err != nil {
 		return nil, err
 	}
 

@@ -23,6 +23,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	log.Info("config on startup", log.Data{"config": sanitiseConfig(cfg)})
+
 	envMax, err := strconv.ParseInt(cfg.KafkaMaxBytes, 10, 32)
 	if err != nil {
 		log.ErrorC("encountered error parsing kafka max bytes", err, nil)
@@ -77,4 +79,21 @@ func main() {
 	}
 
 	svc.Start()
+}
+
+func sanitiseConfig(cfg *config.Config) *config.Config {
+	sanitisedConfig := &config.Config{
+		ConsumerGroup:           cfg.ConsumerGroup,
+		ConsumerTopic:           cfg.ConsumerTopic,
+		EventReporterTopic:      cfg.EventReporterTopic,
+		GracefulShutdownTimeout: cfg.GracefulShutdownTimeout,
+		HealthcheckInterval:     cfg.HealthcheckInterval,
+		HealthcheckTimeout:      cfg.HealthcheckTimeout,
+		HierarchyAPIURL:         cfg.HierarchyAPIURL,
+		KafkaMaxBytes:           cfg.KafkaMaxBytes,
+		MaxRetries:              cfg.MaxRetries,
+		ProducerTopic:           cfg.ProducerTopic,
+		SearchBuilderURL:        cfg.SearchBuilderURL,
+	}
+	return sanitisedConfig
 }

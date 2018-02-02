@@ -83,7 +83,6 @@ func (svc *Service) Start() {
 							log.ErrorC("ErrorProducer.Notify returned an error", err, logData)
 						}
 					}
-
 				} else {
 					log.Debug("event successfully processed", logData)
 				}

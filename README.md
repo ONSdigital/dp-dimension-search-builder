@@ -43,14 +43,13 @@ one of:
 | -------------------------- | -------------------------------------| -----------
 | BIND_ADDR                  | :22900                               | The host and port to bind to
 | CONSUMER_GROUP             | dp-search-builder                    | The name of the Kafka consumer group
-| CONSUMER_TOPIC             | hierarchy-built                       | The name of the topic to consumes messages from
 | ELASTIC_SEARCH_URL         | http://localhost:9200                | The host name for elasticsearch
 | EVENT_REPORTER_TOPIC       | report-events                        | The kafka topic to send errors to
 | GRACEFUL_SHUTDOWN_TIMEOUT  | 5s                                   | The graceful shutdown timeout
 | HEALTHCHECK_INTERVAL       | 60s                                  | The interval between healthchecks
 | HEALTHCHECK_TIMEOUT        | 2s                                   | The timeout that the healthcheck allows for checked subsystems
 | HIERARCHY_API_URL          | http://localhost:22600               | The host name for the Hierarchy API
-| HIERARCHY_BUILT_TOPIC      | hierarchy-built                      | The name of the topic to consumes
+| HIERARCHY_BUILT_TOPIC      | hierarchy-built                      | The name of the topic to consume messages from
 | KAFKA_ADDR                 | localhost:9092                       | A list of Kafka host addresses
 | KAFKA_MAX_BYTES            | 2000000                              | The max message size for kafka producer
 | PRODUCER_TOPIC             | search-built                         | The name of the topic to produces messages to
