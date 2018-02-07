@@ -37,39 +37,35 @@
 					"fields": {
 						"raw": {
 							"analyzer": "raw_analyzer",
-							"type": "string",
+							"type": "text",
 							"index_options": "docs",
-							"norms": {
-								"enabled": false
-							}
+							"norms": false
 						}
 					},
-					"type": "string"
+					"type": "keyword"
 				},
 				"label": {
 					"fields": {
 						"raw": {
 							"analyzer": "raw_analyzer",
-							"type": "string",
+							"type": "text",
 							"index_options": "docs",
-							"norms": {
-								"enabled": false
-							}
+							"norms": false
 						}
 					},
-					"type": "string"
+					"type": "text"
 				},
 				"has_data": {
-					"index": "not_analyzed",
+					"index": false,
 					"type": "boolean"
 				},
 				"number_of_children": {
-					"index": "not_analyzed",
+					"index": false,
 					"type": "integer"
 				},
 				"url": {
-					"index": "not_analyzed",
-					"type": "string"
+					"index": false,
+					"type": "keyword"
 				}
 			}
 		}

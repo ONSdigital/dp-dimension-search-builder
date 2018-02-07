@@ -68,7 +68,7 @@ func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension st
 		return 0, errors.New("missing dimension option code")
 	}
 
-	path := api.url + "/" + instanceID + "_" + dimension + "/hierarchy/" + dimensionOption.Code
+	path := api.url + "/" + instanceID + "_" + dimension + "/dimension_option/" + dimensionOption.Code
 
 	bytes, err := json.Marshal(dimensionOption)
 	if err != nil {
