@@ -50,7 +50,7 @@ func main() {
 	}
 
 	client := rchttp.DefaultClient
-	elasticSearchAPI := elasticsearch.NewElasticSearchAPI(client, cfg.ElasticSearchAPIURL)
+	elasticSearchAPI := elasticsearch.NewElasticSearchAPI(client, cfg.ElasticSearchAPIURL, cfg.SignElasticsearchRequests)
 	_, status, err := elasticSearchAPI.CallElastic(context.Background(), cfg.ElasticSearchAPIURL, "GET", nil)
 	if err != nil {
 		log.ErrorC("failed to start up, unable to connect to elastic search instance", err, log.Data{"http_status": status})
@@ -64,9 +64,10 @@ func main() {
 	}
 
 	svc := &service.Service{
-		BindAddr:            cfg.BindAddr,
-		Consumer:            syncConsumerGroup,
-		ElasticSearchURL:    cfg.ElasticSearchAPIURL,
+		BindAddr:                  cfg.BindAddr,
+		Consumer:                  syncConsumerGroup,
+		ElasticSearchURL:          cfg.ElasticSearchAPIURL,
+		SignElasticsearchRequests: cfg.SignElasticsearchRequests,
 		EnvMax:              envMax,
 		ErrorReporter:       errorReporter,
 		HealthcheckInterval: cfg.HealthcheckInterval,

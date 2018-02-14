@@ -21,20 +21,21 @@ import (
 
 // Service represents the necessary config for dp-dimension-extractor
 type Service struct {
-	EnvMax                   int64
-	BindAddr                 string
-	Consumer                 *kafka.ConsumerGroup
-	ElasticSearchURL         string
-	ErrorReporter            reporter.ImportErrorReporter
-	HealthcheckInterval      time.Duration
-	HealthcheckTimeout       time.Duration
-	HierarchyAPIURL          string
-	HTTPClient               *rchttp.Client
-	MaxRetries               int
-	SearchBuiltProducer      kafka.Producer
-	SearchBuilderErrProducer kafka.Producer
-	SearchBuilderURL         string
-	Shutdown                 time.Duration
+	EnvMax                    int64
+	BindAddr                  string
+	Consumer                  *kafka.ConsumerGroup
+	ElasticSearchURL          string
+	SignElasticsearchRequests bool
+	ErrorReporter             reporter.ImportErrorReporter
+	HealthcheckInterval       time.Duration
+	HealthcheckTimeout        time.Duration
+	HierarchyAPIURL           string
+	HTTPClient                *rchttp.Client
+	MaxRetries                int
+	SearchBuiltProducer       kafka.Producer
+	SearchBuilderErrProducer  kafka.Producer
+	SearchBuilderURL          string
+	Shutdown                  time.Duration
 }
 
 // Start handles consumption of events
