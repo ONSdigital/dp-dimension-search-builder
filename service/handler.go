@@ -35,7 +35,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 
 	apis := &APIs{
 		hierarchyAPI: hierarchy.NewHierarchyAPI(svc.HTTPClient, svc.HierarchyAPIURL),
-		elasticAPI:   elasticsearch.NewElasticSearchAPI(svc.HTTPClient, svc.ElasticSearchURL),
+		elasticAPI:   elasticsearch.NewElasticSearchAPI(svc.HTTPClient, svc.ElasticSearchURL, svc.SignElasticsearchRequests),
 	}
 
 	// Make request to Hierarchy API to get "Super Parent" for dimension
