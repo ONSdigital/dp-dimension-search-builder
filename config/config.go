@@ -48,7 +48,7 @@ func Get() (*Config, error) {
 		MaxRetries:                3,
 		ProducerTopic:             "search-built",
 		SearchBuilderURL:          "http://localhost:22900",
-		SignElasticsearchRequests: true,
+		SignElasticsearchRequests: false,
 	}
 
 	return cfg, envconfig.Process("", cfg)
