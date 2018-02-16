@@ -57,7 +57,7 @@ func (svc *Service) Start() {
 		svc.HealthcheckInterval,
 		errorChannel,
 		hierarchyHealthCheck.New(svc.HierarchyAPIURL),
-		elasticsearch.NewHealthCheckClient(svc.ElasticSearchURL),
+		elasticsearch.NewHealthCheckClient(svc.ElasticSearchURL, svc.SignElasticsearchRequests),
 	)
 
 	// eventLoop
