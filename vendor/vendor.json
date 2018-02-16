@@ -51,10 +51,10 @@
 			"revisionTime": "2018-01-10T11:25:19Z"
 		},
 		{
-			"checksumSHA1": "vUI1Ka3DUTkCoWJQa1cC/BdQcOc=",
+			"checksumSHA1": "uDTtKPrdcn8RBZYHi9TJHB6gacI=",
 			"path": "github.com/ONSdigital/go-ns/elasticsearch",
-			"revision": "58a9ca68033e856ba1bd5d6afe04c1ac1b1aa45a",
-			"revisionTime": "2018-01-10T11:25:19Z"
+			"revision": "556c0f0f42a15a841bdcd3f2dafc26356b67e1aa",
+			"revisionTime": "2018-02-09T11:22:41Z"
 		},
 		{
 			"checksumSHA1": "J9OiPnhPHFPhQ+R+dq6LFj+dTxE=",
