@@ -39,7 +39,7 @@ func NewElasticSearchAPI(client *rchttp.Client, elasticSearchAPIURL string, sign
 func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
 	path := api.url + "/" + instanceID + "_" + dimension
 
-	indexMappings, err := ioutil.ReadFile("./elasticsearch/mappings.json")
+	indexMappings, err := Asset("mappings.json")
 	if err != nil {
 		return 0, err
 	}
