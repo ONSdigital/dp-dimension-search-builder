@@ -51,6 +51,12 @@
 			"revisionTime": "2018-01-10T11:25:19Z"
 		},
 		{
+			"checksumSHA1": "8GX4z3tt4e6rXHJtJv8q8YZrFwk=",
+			"path": "github.com/ONSdigital/go-ns/common",
+			"revision": "3fdd13a161b0d6221b2405cce8bbe5ec69168ab7",
+			"revisionTime": "2018-07-05T11:25:05Z"
+		},
+		{
 			"checksumSHA1": "uDTtKPrdcn8RBZYHi9TJHB6gacI=",
 			"path": "github.com/ONSdigital/go-ns/elasticsearch",
 			"revision": "556c0f0f42a15a841bdcd3f2dafc26356b67e1aa",
@@ -75,10 +81,10 @@
 			"revisionTime": "2017-12-21T14:28:47Z"
 		},
 		{
-			"checksumSHA1": "7DeVPN/PW8oj0H7q/00MqhBkZzo=",
+			"checksumSHA1": "g9flYl+PBs6cYflFY3EpG6IcJGM=",
 			"path": "github.com/ONSdigital/go-ns/log",
-			"revision": "5a0e762287386a7035095e07d74353f08f532a0a",
-			"revisionTime": "2017-12-21T14:28:47Z"
+			"revision": "3fdd13a161b0d6221b2405cce8bbe5ec69168ab7",
+			"revisionTime": "2018-07-05T11:25:05Z"
 		},
 		{
 			"checksumSHA1": "eqT3lUe+1W+njYJOealHQ+LsXv0=",
