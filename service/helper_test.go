@@ -107,10 +107,10 @@ func TestSuccessfullyIterateOverChildren(t *testing.T) {
 			elasticAPI:   &mocks.ElasticAPI{NumberOfCalls: &numberOfElasticCalls},
 		}
 
-		selfLink := models.Link{ID: "5467"}
+		codeLink := models.Link{ID: "5467"}
 
 		links := make(map[string]models.Link)
-		links["self"] = selfLink
+		links["code"] = codeLink
 
 		child := &models.Element{Links: links}
 
@@ -129,10 +129,10 @@ func TestSuccessfullyIterateOverChildren(t *testing.T) {
 			elasticAPI:   &mocks.ElasticAPI{NumberOfCalls: &numberOfElasticCalls},
 		}
 
-		selfLink := models.Link{ID: "5467"}
+		codeLink := models.Link{ID: "5467"}
 
 		links := make(map[string]models.Link)
-		links["self"] = selfLink
+		links["code"] = codeLink
 
 		firstChild := &models.Element{Links: links}
 		secondChild := &models.Element{Links: links}
@@ -155,10 +155,10 @@ func TestFailToIterateOverChildren(t *testing.T) {
 			elasticAPI:   &mocks.ElasticAPI{InternalServerError: true, NumberOfCalls: &numberOfElasticCalls},
 		}
 
-		selfLink := models.Link{ID: "5467"}
+		codeLink := models.Link{ID: "5467"}
 
 		links := make(map[string]models.Link)
-		links["self"] = selfLink
+		links["code"] = codeLink
 
 		child := &models.Element{Links: links}
 
