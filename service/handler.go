@@ -82,7 +82,7 @@ func (svc *Service) handleMessage(ctx context.Context, message kafka.Message) (s
 
 	// loop through children to retrieve codeID's
 	for _, child := range rootDimensionOption.Children {
-		codeID := child.Links["self"].ID
+		codeID := child.Links["code"].ID
 
 		if err = apis.addChildrenToSearchIndex(ctx, instanceID, dimension, codeID); err != nil {
 			log.Error(err, log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})

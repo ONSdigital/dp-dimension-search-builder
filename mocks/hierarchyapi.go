@@ -32,12 +32,17 @@ func (api *HierarchyAPI) GetDimensionOption(ctx context.Context, instanceID, dim
 
 	if api.NumberOfDescendants != 0 {
 
-		selfLink := models.Link{
+		codeLink := models.Link{
 			ID:   "5432",
 			HRef: "http://localhost:9090/hierarchiy-api/hierarchies/" + instanceID + "/SpecialAggregate/5432",
 		}
 
+		selfLink := models.Link{
+			HRef: "http://localhost:9090/hierarchiy-api/hierarchies/" + instanceID + "/SpecialAggregate/5432",
+		}
+
 		links := make(map[string]models.Link)
+		links["code"] = codeLink
 		links["self"] = selfLink
 
 		child := &models.Element{
