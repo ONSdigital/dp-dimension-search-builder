@@ -25,7 +25,7 @@ func (apis *APIs) addChildrenToSearchIndex(ctx context.Context, instanceID, dime
 	}
 
 	esDimensionOption := models.DimensionOption{
-		Code:             dimensionOption.Links["self"].ID,
+		Code:             dimensionOption.Links["code"].ID,
 		HasData:          dimensionOption.HasData,
 		Label:            dimensionOption.Label,
 		NumberOfChildren: dimensionOption.NoOfChildren,
@@ -51,7 +51,7 @@ func (apis *APIs) addChildrenToSearchIndex(ctx context.Context, instanceID, dime
 
 func (apis *APIs) iterateOverChildren(ctx context.Context, instanceID, dimension string, children []*hierarchyModel.Element) error {
 	for _, child := range children {
-		codeID := child.Links["self"].ID
+		codeID := child.Links["code"].ID
 		if codeID != "" {
 
 			if err := apis.addChildrenToSearchIndex(ctx, instanceID, dimension, codeID); err != nil {
