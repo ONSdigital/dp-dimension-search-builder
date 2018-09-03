@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "Rz/hEshyQmzYA0JK2r2VkkqUTCA=",
+			"checksumSHA1": "4z9gScVNJnVuuZjKUYFbhTQfmwA=",
 			"path": "github.com/ONSdigital/dp-hierarchy-api/models",
-			"revision": "8e5aa53edec6aa967fae67af34a28ae01962cdea",
-			"revisionTime": "2017-12-12T11:32:15Z"
+			"revision": "19d1670d8c1091c2dcc243b3f26fac3750f9bf5d",
+			"revisionTime": "2018-08-03T13:44:33Z"
 		},
 		{
 			"checksumSHA1": "7ktFjGIGhu47N6olqwLqilyjXNw=",
