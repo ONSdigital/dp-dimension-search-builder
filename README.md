@@ -37,6 +37,10 @@ one of:
 - success (200, JSON "status": "OK")
 - failure (500, JSON "status": "error").
 
+### Kafka scripts
+
+Scripts for updating and debugging Kafka can be found [here](https://github.com/ONSdigital/dp-data-tools)(dp-data-tools)
+
 ### Configuration
 
 | Environment variable       | Default                              | Description
