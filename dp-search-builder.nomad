@@ -28,11 +28,7 @@ job "dp-search-builder" {
     }
 
     task "dp-search-builder" {
-      driver = "exec"
-
-      artifact {
-        source = "s3::https://s3-eu-west-1.amazonaws.com/{{BUILD_BUCKET}}/dp-search-builder/{{REVISION}}.tar.gz"
-      }
+      driver = "docker"
 
       artifact {
         source = "s3::https://s3-eu-west-1.amazonaws.com/{{DEPLOYMENT_BUCKET}}/dp-search-builder/{{REVISION}}.tar.gz"
@@ -40,9 +36,14 @@ job "dp-search-builder" {
 
       config {
         command = "${NOMAD_TASK_DIR}/start-task"
-        args    = [
-          "${NOMAD_TASK_DIR}/dp-search-builder",
-        ]
+
+        args = [“./dp-search-builder”]
+
+        image = “{{ECR_URL}}:concourse-{{REVISION}}”
+
+        port_map {
+          http = “${NOMAD_PORT_http}”
+        }
       }
 
       service {
