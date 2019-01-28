@@ -37,12 +37,12 @@ job "dp-search-builder" {
       config {
         command = "${NOMAD_TASK_DIR}/start-task"
 
-        args = [“./dp-search-builder”]
+        args = ["./dp-search-builder"]
 
-        image = “{{ECR_URL}}:concourse-{{REVISION}}”
+        image = "{{ECR_URL}}:concourse-{{REVISION}}"
 
         port_map {
-          http = “${NOMAD_PORT_http}”
+          http = "${NOMAD_PORT_http}"
         }
       }
 
