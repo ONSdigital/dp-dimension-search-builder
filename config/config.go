@@ -38,7 +38,7 @@ func Get() (*Config, error) {
 		Brokers:                   []string{"localhost:9092"},
 		ConsumerGroup:             "dp-search-builder",
 		ConsumerTopic:             "hierarchy-built",
-		ElasticSearchAPIURL:       "http://localhost:9200",
+		ElasticSearchAPIURL:       "http://localhost:10200",
 		EventReporterTopic:        "report-events",
 		GracefulShutdownTimeout:   5 * time.Second,
 		HealthcheckInterval:       time.Minute,
