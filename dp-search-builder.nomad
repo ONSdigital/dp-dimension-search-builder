@@ -49,6 +49,12 @@ job "dp-search-builder" {
       service {
         name = "dp-search-builder"
         tags = ["publishing"]
+        check {
+          type     = "http"
+          path     = "/health"
+          interval = "10s"
+          timeout  = "2s"
+        }
       }
 
       resources {
