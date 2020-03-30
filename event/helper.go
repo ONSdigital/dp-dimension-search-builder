@@ -1,4 +1,4 @@
-package service
+package event
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/ONSdigital/dp-search-builder/elasticsearch"
 	"github.com/ONSdigital/dp-search-builder/hierarchy"
 	"github.com/ONSdigital/dp-search-builder/models"
-	"github.com/ONSdigital/go-ns/log"
+	"github.com/ONSdigital/log.go/log"
 )
 
 // APIs represent a list of API interfaces used by service
@@ -20,7 +20,8 @@ func (apis *APIs) addChildrenToSearchIndex(ctx context.Context, instanceID, dime
 	// Get a child document for dimension hierarchy
 	dimensionOption, err := apis.hierarchyAPI.GetDimensionOption(ctx, instanceID, dimension, codeID)
 	if err != nil {
-		log.Error(err, log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID}) // Possibly want to log this out higher up the tree
+		// Possibly want to log this out higher up the tree
+		log.Event(ctx, "failed to retrieve dimension option", log.ERROR, log.Error(err), log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
 		return err
 	}
 
@@ -35,7 +36,7 @@ func (apis *APIs) addChildrenToSearchIndex(ctx context.Context, instanceID, dime
 	// Add child document to index
 	apiStatus, err := apis.elasticAPI.AddDimensionOption(ctx, instanceID, dimension, esDimensionOption)
 	if err != nil {
-		log.Error(err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
+		log.Event(ctx, "failed to add child document to index", log.ERROR, log.Error(err), log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 		return err
 	}
 
@@ -55,7 +56,7 @@ func (apis *APIs) iterateOverChildren(ctx context.Context, instanceID, dimension
 		if codeID != "" {
 
 			if err := apis.addChildrenToSearchIndex(ctx, instanceID, dimension, codeID); err != nil {
-				log.Error(err, log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
+				log.Event(ctx, "failed to add child docs to search index", log.ERROR, log.Error(err), log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
 				return err
 			}
 		}
