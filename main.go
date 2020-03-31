@@ -129,7 +129,7 @@ func run(ctx context.Context) error {
 
 	log.Event(ctx, "application started", log.INFO, log.Data{"search_builder_url": cfg.SearchBuilderURL})
 
-	consumer := event.NewServiceConsumer(clienter, cfg.HierarchyAPIURL, cfg.ElasticSearchAPIURL, cfg.SignElasticsearchRequests, searchBuiltProducer, errorReporter)
+	consumer := event.NewConsumer(clienter, cfg.HierarchyAPIURL, cfg.ElasticSearchAPIURL, cfg.SignElasticsearchRequests, searchBuiltProducer, errorReporter)
 
 	// Start listening for event messages
 	consumer.Consume(syncConsumerGroup)

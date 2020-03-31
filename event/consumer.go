@@ -18,6 +18,7 @@ type Consumer struct {
 	closed  chan bool
 }
 
+// Service contains service configuration for consumer
 type Service struct {
 	ElasticSearchURL          string
 	SignElasticsearchRequests bool
@@ -32,8 +33,8 @@ type eventClose struct {
 	ctx context.Context
 }
 
-// NewServiceConsumer returns a new consumer instance.
-func NewServiceConsumer(clienter rchttp.Clienter, hierarchyAPIURL, elasticsearchURL string,
+// NewConsumer returns a new consumer instance.
+func NewConsumer(clienter rchttp.Clienter, hierarchyAPIURL, elasticsearchURL string,
 	signElasticsearchRequests bool, searchBuiltProducer *kafka.Producer, errorReporter reporter.ImportErrorReporter) *Consumer {
 
 	service := Service{
