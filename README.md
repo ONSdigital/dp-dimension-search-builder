@@ -24,7 +24,7 @@ Refer to https://github.com/ONSdigital/dp-import#dp-import for infrastructure se
 ### Getting started
 
 * Clone the repo `go get github.com/ONSdigital/dp-search-builder`
-* Run kafka and zookeeper
+* Run zookeeper and then kafka
 * Run elasticsearch
 * Run the hierarchy API, see documentation [here](https://github.com/ONSdigital/dp-hierarchy-api)
 * Run the application `make debug`

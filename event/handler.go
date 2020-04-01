@@ -91,7 +91,7 @@ func (c *Consumer) handleMessage(ctx context.Context, message kafka.Message) (st
 		codeID := child.Links["code"].ID
 
 		if err = apis.addChildrenToSearchIndex(ctx, instanceID, dimension, codeID); err != nil {
-			log.Event(ctx, "faile to add children dimension options", log.ERROR, log.Error(err), log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
+			log.Event(ctx, "failed to add children dimension options", log.ERROR, log.Error(err), log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
 			return instanceID, dimension, err
 		}
 	}
