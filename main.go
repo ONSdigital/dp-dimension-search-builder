@@ -156,51 +156,70 @@ func run(ctx context.Context) error {
 		defer shutdownCancel()
 
 		if serviceList.HealthCheck {
-			log.Event(shutdownContext, "stopping health check", log.INFO)
+			log.Event(shutdownContext, "closing health check", log.INFO)
 			hc.Stop()
-			log.Event(shutdownContext, "stopped health check", log.INFO)
+			log.Event(shutdownContext, "closed health check", log.INFO)
 		}
 
-		log.Event(shutdownContext, "stopping http server", log.INFO)
-		err = httpServer.Shutdown(shutdownContext)
-		if err != nil {
-			log.Event(ctx, "failed to shutdown http server", log.ERROR, log.Error(err))
+		log.Event(shutdownContext, "closing http server", log.INFO)
+		if err = httpServer.Shutdown(shutdownContext); err != nil {
+			log.Event(shutdownContext, "unsuccessfully closed http server", log.ERROR, log.Error(err))
 			hasShutdownError = true
+		} else {
+			log.Event(shutdownContext, "closed http server", log.INFO)
 		}
-		log.Event(shutdownContext, "stopped http server", log.INFO)
 
 		// If kafka consumer exists, stop listening to it. (Will close later)
 		if serviceList.Consumer {
-			log.Event(shutdownContext, "stopping kafka consumer listener", log.INFO)
-			syncConsumerGroup.StopListeningToConsumer(shutdownContext)
-			log.Event(shutdownContext, "stopped kafka consumer listener", log.INFO)
+			log.Event(shutdownContext, "closing kafka consumer listener", log.INFO, log.Data{"topic": cfg.ConsumerTopic})
+			if err = syncConsumerGroup.StopListeningToConsumer(shutdownContext); err != nil {
+				log.Event(shutdownContext, "unsuccessfully closed kafka consumer listener", log.ERROR, log.Error(err), log.Data{"topic": cfg.ConsumerTopic})
+				hasShutdownError = true
+			} else {
+				log.Event(shutdownContext, "closed kafka consumer listener", log.INFO, log.Data{"topic": cfg.ConsumerTopic})
+			}
 		}
 
 		// If search built kafka producer exists, close it
 		if serviceList.SearchBuiltProducer {
 			log.Event(shutdownContext, "closing search builder kafka producer", log.INFO, log.Data{"topic": cfg.ProducerTopic})
-			searchBuiltProducer.Close(shutdownContext)
-			log.Event(shutdownContext, "closed search builder kafka producer", log.INFO, log.Data{"topic": cfg.ProducerTopic})
+			if err = searchBuiltProducer.Close(shutdownContext); err != nil {
+				log.Event(shutdownContext, "unsuccessfully closed search builder kafka producer", log.ERROR, log.Error(err), log.Data{"topic": cfg.ProducerTopic})
+				hasShutdownError = true
+			} else {
+				log.Event(shutdownContext, "closed search builder kafka producer", log.INFO, log.Data{"topic": cfg.ProducerTopic})
+			}
 		}
 
 		// If search builder error kafka producer exists, close it
 		if serviceList.SearchBuilderErrProducer {
 			log.Event(shutdownContext, "closing search builder error kafka producer", log.INFO, log.Data{"topic": cfg.EventReporterTopic})
-			searchBuilderErrProducer.Close(shutdownContext)
-			log.Event(shutdownContext, "closed search builder error kafka producer", log.INFO, log.Data{"topic": cfg.EventReporterTopic})
+			if err = searchBuilderErrProducer.Close(shutdownContext); err != nil {
+				log.Event(shutdownContext, "unsuccessfully closed search builder error kafka producer", log.ERROR, log.Error(err), log.Data{"topic": cfg.EventReporterTopic})
+				hasShutdownError = true
+			} else {
+				log.Event(shutdownContext, "closed search builder error kafka producer", log.INFO, log.Data{"topic": cfg.EventReporterTopic})
+			}
 		}
 
 		// Close consumer loop
+		log.Event(shutdownContext, "closing search builder consumer loop", log.INFO)
 		if err = consumer.Close(shutdownContext); err != nil {
-			log.Event(ctx, "failed to close consumer loop", log.ERROR, log.Error(err))
+			log.Event(shutdownContext, "unsuccessfully search builder closed consumer loop", log.ERROR, log.Error(err))
 			hasShutdownError = true
+		} else {
+			log.Event(shutdownContext, "closed search builder consumer loop", log.INFO)
 		}
 
 		// If kafka consumer exists, close it
 		if serviceList.Consumer {
-			log.Event(shutdownContext, "closing kafka consumer", log.INFO, log.Data{"consumer": "SyncConsumerGroup"})
-			syncConsumerGroup.Close(shutdownContext)
-			log.Event(shutdownContext, "closed kafka consumer", log.INFO, log.Data{"consumer": "SyncConsumerGroup"})
+			log.Event(shutdownContext, "closing kafka consumer", log.INFO, log.Data{"topic": cfg.ConsumerTopic})
+			if err = syncConsumerGroup.Close(shutdownContext); err != nil {
+				log.Event(shutdownContext, "unsuccessfully closed kafka consumer", log.ERROR, log.Error(err), log.Data{"topic": cfg.ConsumerTopic})
+				hasShutdownError = true
+			} else {
+				log.Event(shutdownContext, "closed kafka consumer", log.INFO, log.Data{"topic": cfg.ConsumerTopic})
+			}
 		}
 	}()
 
@@ -240,7 +259,7 @@ func registerCheckers(ctx context.Context, hc *healthcheck.HealthCheck,
 
 	if err = hc.AddCheck("Kafka Search Built Producer", searchBuiltProducer.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "error adding check for kafka import producer", log.ERROR, log.Error(err))
+		log.Event(ctx, "error adding check for kafka search built producer", log.ERROR, log.Error(err))
 	}
 
 	if err = hc.AddCheck("Kafka Error Producer", searchBuilderErrProducer.Checker); err != nil {
