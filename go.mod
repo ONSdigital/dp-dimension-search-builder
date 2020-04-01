@@ -9,7 +9,7 @@ require (
 	github.com/ONSdigital/dp-hierarchy-api v0.0.0-20200309110613-76f2517bcbed
 	github.com/ONSdigital/dp-import v0.0.0-20180202121531-d3cc28e452c3
 	github.com/ONSdigital/dp-kafka v1.1.5
-	github.com/ONSdigital/dp-rchttp v0.0.0-20200114090501-463a529590e8
+	github.com/ONSdigital/dp-rchttp v1.0.0
 	github.com/ONSdigital/dp-reporter-client v1.0.0
 	github.com/ONSdigital/go-ns v0.0.0-20200205115900-a11716f93bad
 	github.com/ONSdigital/log.go v1.0.0
