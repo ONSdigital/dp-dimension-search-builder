@@ -48,6 +48,8 @@ job "dp-search-builder" {
 
       service {
         name = "dp-search-builder"
+
+        port = "http"
         tags = ["publishing"]
         check {
           type     = "http"
