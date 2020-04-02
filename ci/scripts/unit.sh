@@ -1,7 +1,7 @@
 #!/bin/bash -eux
 
-export GOPATH=$(pwd)/go
+cwd=$(pwd)
 
-pushd $GOPATH/src/github.com/ONSdigital/dp-search-builder
+pushd $cwd/dp-search-builder
   make test
 popd
