@@ -50,8 +50,8 @@ Scripts for updating and debugging Kafka can be found [here](https://github.com/
 | ELASTIC_SEARCH_URL           | http://localhost:10200               | The host name for elasticsearch
 | EVENT_REPORTER_TOPIC         | report-events                        | The kafka topic to send errors to
 | GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                                   | The graceful shutdown timeout
-| HEALTHCHECK_INTERVAL         | 60s                                  | The time between calling healthcheck endpoints for check subsystems
-| HEALTHCHECK_CRITICAL_TIMEOUT | 2s                                   | The time taken for the health changes from warning state to critical due to subsystem check failures
+| HEALTHCHECK_INTERVAL         | 30s                                  | The time between calling healthcheck endpoints for check subsystems
+| HEALTHCHECK_CRITICAL_TIMEOUT | 90s                                  | The time taken for the health changes from warning state to critical due to subsystem check failures
 | HIERARCHY_API_URL            | http://localhost:22600               | The host name for the Hierarchy API
 | HIERARCHY_BUILT_TOPIC        | hierarchy-built                      | The name of the topic to consume messages from
 | KAFKA_ADDR                   | localhost:9092                       | A list of Kafka host addresses
