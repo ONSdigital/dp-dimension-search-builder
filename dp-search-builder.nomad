@@ -12,7 +12,7 @@ job "dp-search-builder" {
   update {
     stagger          = "60s"
     min_healthy_time = "30s"
-    healthy_deadline = "2m"
+    healthy_deadline = "5m"
     max_parallel     = 1
     auto_revert      = true
   }
@@ -48,7 +48,15 @@ job "dp-search-builder" {
 
       service {
         name = "dp-search-builder"
+
+        port = "http"
         tags = ["publishing"]
+        check {
+          type     = "http"
+          path     = "/health"
+          interval = "10s"
+          timeout  = "2s"
+        }
       }
 
       resources {

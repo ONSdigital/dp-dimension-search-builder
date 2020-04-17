@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"net/url"
 
+	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-search-builder/models"
-	"github.com/ONSdigital/go-ns/log"
-	"github.com/ONSdigital/go-ns/rchttp"
-	"github.com/smartystreets/go-aws-auth"
+	"github.com/ONSdigital/log.go/log"
+	awsauth "github.com/smartystreets/go-aws-auth"
 )
 
 // ErrorUnexpectedStatusCode represents the error message to be returned when
@@ -21,15 +21,16 @@ var ErrorUnexpectedStatusCode = errors.New("unexpected status code from api")
 
 // API aggregates a client and URL and other common data for accessing the API
 type API struct {
-	client       *rchttp.Client
+	clienter     rchttp.Clienter
 	url          string
 	signRequests bool
 }
 
 // NewElasticSearchAPI creates an ElasticSearchAPI object
-func NewElasticSearchAPI(client *rchttp.Client, elasticSearchAPIURL string, signRequests bool) *API {
+func NewElasticSearchAPI(clienter rchttp.Clienter, elasticSearchAPIURL string, signRequests bool) *API {
+
 	return &API{
-		client:       client,
+		clienter:     clienter,
 		url:          elasticSearchAPIURL,
 		signRequests: signRequests,
 	}
@@ -66,7 +67,7 @@ func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension str
 
 // AddDimensionOption adds a document to an elastic search index
 func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension string, dimensionOption models.DimensionOption) (int, error) {
-	log.Info("adding dimension option", log.Data{"dimension_option": dimensionOption})
+	log.Event(ctx, "adding dimension option", log.INFO, log.Data{"dimension_option": dimensionOption})
 	if dimensionOption.Code == "" {
 		return 0, errors.New("missing dimension option code")
 	}
@@ -92,7 +93,7 @@ func (api *API) CallElastic(ctx context.Context, path, method string, payload in
 
 	URL, err := url.Parse(path)
 	if err != nil {
-		log.ErrorC("failed to create url for elastic call", err, logData)
+		log.Event(ctx, "failed to create url for elastic call", log.ERROR, log.Error(err), logData)
 		return nil, 0, err
 	}
 	path = URL.String()
@@ -109,7 +110,7 @@ func (api *API) CallElastic(ctx context.Context, path, method string, payload in
 	}
 	// check req, above, didn't error
 	if err != nil {
-		log.ErrorC("failed to create request for call to elastic", err, logData)
+		log.Event(ctx, "failed to create request for call to elastic", log.ERROR, log.Error(err), logData)
 		return nil, 0, err
 	}
 
@@ -117,9 +118,9 @@ func (api *API) CallElastic(ctx context.Context, path, method string, payload in
 		awsauth.Sign(req)
 	}
 
-	resp, err := api.client.Do(ctx, req)
+	resp, err := api.clienter.Do(ctx, req)
 	if err != nil {
-		log.ErrorC("failed to call elastic", err, logData)
+		log.Event(ctx, "failed to call elastic", log.ERROR, log.Error(err), logData)
 		return nil, 0, err
 	}
 	defer resp.Body.Close()
@@ -128,14 +129,14 @@ func (api *API) CallElastic(ctx context.Context, path, method string, payload in
 
 	jsonBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.ErrorC("failed to read response body from call to elastic", err, logData)
+		log.Event(ctx, "failed to read response body from call to elastic", log.ERROR, log.Error(err), logData)
 		return nil, resp.StatusCode, err
 	}
 	logData["json_body"] = string(jsonBody)
 	logData["status_code"] = resp.StatusCode
 
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= 300 {
-		log.ErrorC("failed", ErrorUnexpectedStatusCode, logData)
+		log.Event(ctx, "failed", log.ERROR, log.Error(ErrorUnexpectedStatusCode), logData)
 		return nil, resp.StatusCode, ErrorUnexpectedStatusCode
 	}
 
