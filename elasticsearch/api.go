@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	es "github.com/ONSdigital/dp-elasticsearch"
+	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-search-builder/models"
 	"github.com/ONSdigital/log.go/log"
@@ -18,11 +18,11 @@ var ErrorUnexpectedStatusCode = errors.New("unexpected status code from api")
 // API aggregates a client and URL and other common data for accessing the API
 type API struct {
 	clienter            rchttp.Clienter
-	elasticSearchClient *es.Client
+	elasticSearchClient *elasticsearch.Client
 }
 
 // NewElasticSearchAPI creates an ElasticSearchAPI object
-func NewElasticSearchAPI(clienter rchttp.Clienter, elasticSearchClient *es.Client) *API {
+func NewElasticSearchAPI(clienter rchttp.Clienter, elasticSearchClient *elasticsearch.Client) *API {
 
 	return &API{
 		clienter:            clienter,
@@ -32,14 +32,14 @@ func NewElasticSearchAPI(clienter rchttp.Clienter, elasticSearchClient *es.Clien
 
 // CreateSearchIndex creates a new index in elastic search
 func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
-	path := "/" + instanceID + "_" + dimension
+	indexName := instanceID + "_" + dimension
 
 	indexMappings, err := Asset("mappings.json")
 	if err != nil {
 		return 0, err
 	}
 
-	status, err := api.elasticSearchClient.CreateIndex(ctx, path, indexMappings)
+	status, err := api.elasticSearchClient.CreateIndex(ctx, indexName, indexMappings)
 	if err != nil {
 		return status, err
 	}
@@ -49,9 +49,9 @@ func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension str
 
 // DeleteSearchIndex removes an index from elastic search
 func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
-	path := "/" + instanceID + "_" + dimension
+	indexName := instanceID + "_" + dimension
 
-	status, err := api.elasticSearchClient.DeleteIndex(ctx, path)
+	status, err := api.elasticSearchClient.DeleteIndex(ctx, indexName)
 	if err != nil {
 		return status, err
 	}
@@ -66,14 +66,16 @@ func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension st
 		return 0, errors.New("missing dimension option code")
 	}
 
-	path := "/" + instanceID + "_" + dimension + "/dimension_option/" + dimensionOption.Code
+	indexName := instanceID + "_" + dimension
+	indexType := "dimension_option"
+	documentID := dimensionOption.Code
 
-	bytes, err := json.Marshal(dimensionOption)
+	document, err := json.Marshal(dimensionOption)
 	if err != nil {
 		return 0, err
 	}
 
-	status, err := api.elasticSearchClient.AddDocument(ctx, path, bytes)
+	status, err := api.elasticSearchClient.AddDocument(ctx, indexName, indexType, documentID, document)
 	if err != nil {
 		return status, err
 	}

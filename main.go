@@ -10,7 +10,7 @@ import (
 	"syscall"
 
 	"github.com/ONSdigital/dp-api-clients-go/hierarchy"
-	es "github.com/ONSdigital/dp-elasticsearch"
+	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka"
 	rchttp "github.com/ONSdigital/dp-rchttp"
@@ -97,7 +97,7 @@ func run(ctx context.Context) error {
 	}
 
 	hierarchyClient := hierarchy.New(cfg.HierarchyAPIURL)
-	elasticSearchClient := es.NewClient(cfg.ElasticSearchAPIURL, cfg.SignElasticsearchRequests, cfg.MaxRetries)
+	elasticSearchClient := elasticsearch.NewClient(cfg.ElasticSearchAPIURL, cfg.SignElasticsearchRequests, cfg.MaxRetries)
 
 	// Add a list of checkers to HealthCheck
 	if err := registerCheckers(ctx, &hc, syncConsumerGroup, searchBuiltProducer, searchBuilderErrProducer, elasticSearchClient, *hierarchyClient); err != nil {
@@ -129,8 +129,6 @@ func run(ctx context.Context) error {
 
 	log.Event(ctx, "application started", log.INFO, log.Data{"search_builder_url": cfg.SearchBuilderURL})
 
-	//consumer := event.NewConsumer(clienter, cfg.HierarchyAPIURL, cfg.ElasticSearchAPIURL, cfg.SignElasticsearchRequests, searchBuiltProducer, errorReporter)
-	//elasticSearchClient - URL and SignRequests
 	consumer := event.NewConsumer(clienter, cfg.HierarchyAPIURL, elasticSearchClient, searchBuiltProducer, errorReporter)
 
 	// Start listening for event messages
@@ -225,7 +223,7 @@ func registerCheckers(ctx context.Context, hc *healthcheck.HealthCheck,
 	kafkaConsumer *kafka.ConsumerGroup,
 	searchBuiltProducer *kafka.Producer,
 	searchBuilderErrProducer *kafka.Producer,
-	elasticsearchClient *es.Client,
+	elasticsearchClient *elasticsearch.Client,
 	hierarchyClient hierarchy.Client) (err error) {
 
 	hasErrors := false

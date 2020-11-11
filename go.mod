@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/ONSdigital/dp-api-clients-go v1.28.0
-	github.com/ONSdigital/dp-elasticsearch v1.3.0
+	github.com/ONSdigital/dp-elasticsearch/v2 v2.0.1
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-hierarchy-api v0.0.0-20200309110613-76f2517bcbed
 	github.com/ONSdigital/dp-import v0.0.0-20180202121531-d3cc28e452c3
@@ -26,7 +26,6 @@ require (
 	github.com/pierrec/lz4 v2.4.1+incompatible // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563 // indirect
 	github.com/smartystreets/assertions v1.0.1 // indirect
-	github.com/smartystreets/go-aws-auth v0.0.0-20180515143844-0c1422d1fdb9
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/text v0.3.2 // indirect

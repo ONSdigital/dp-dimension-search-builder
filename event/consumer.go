@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	es "github.com/ONSdigital/dp-elasticsearch"
+	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	kafka "github.com/ONSdigital/dp-kafka"
 	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-reporter-client/reporter"
@@ -21,13 +21,11 @@ type Consumer struct {
 
 // Service contains service configuration for consumer
 type Service struct {
-	//SignElasticsearchRequests bool
 	ErrorReporter       reporter.ImportErrorReporter
 	HierarchyAPIURL     string
 	HTTPClienter        rchttp.Clienter
 	SearchBuiltProducer *kafka.Producer
-	//ElasticsearchURL          string
-	ElasticSearchClient *es.Client
+	ElasticSearchClient *elasticsearch.Client
 }
 
 type eventClose struct {
@@ -35,7 +33,7 @@ type eventClose struct {
 }
 
 // NewConsumer returns a new consumer instance.
-func NewConsumer(clienter rchttp.Clienter, hierarchyAPIURL string, elasticSearchClient *es.Client,
+func NewConsumer(clienter rchttp.Clienter, hierarchyAPIURL string, elasticSearchClient *elasticsearch.Client,
 	searchBuiltProducer *kafka.Producer, errorReporter reporter.ImportErrorReporter) *Consumer {
 
 	service := Service{
