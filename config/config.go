@@ -23,6 +23,8 @@ type Config struct {
 	ProducerTopic              string        `envconfig:"PRODUCER_TOPIC"`
 	SearchBuilderURL           string        `envconfig:"SEARCH_BUILDER_URL"`
 	SignElasticsearchRequests  bool          `envconfig:"SIGN_ELASTICSEARCH_REQUESTS"`
+	KafkaVersion               string        `envconfig:"KAFKA_VERSION"`
+	KafkaOffsetOldest          bool          `envconfig:"KAFKA_OFFSET_OLDEST"`
 }
 
 var cfg *Config
@@ -49,6 +51,8 @@ func Get() (*Config, error) {
 		ProducerTopic:              "search-built",
 		SearchBuilderURL:           "http://localhost:22900",
 		SignElasticsearchRequests:  false,
+		KafkaVersion:               "1.0.2",
+		KafkaOffsetOldest:          true,
 	}
 
 	return cfg, envconfig.Process("", cfg)

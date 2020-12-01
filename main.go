@@ -12,7 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/hierarchy"
 	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	kafka "github.com/ONSdigital/dp-kafka"
+	kafka "github.com/ONSdigital/dp-kafka/v2"
 	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-search-builder/config"
 	"github.com/ONSdigital/dp-search-builder/event"
@@ -70,13 +70,13 @@ func run(ctx context.Context) error {
 		return err
 	}
 
-	searchBuiltProducer, err := serviceList.GetProducer(ctx, cfg.Brokers, cfg.ProducerTopic, initialise.SearchBuilt, int(envMax))
+	searchBuiltProducer, err := serviceList.GetProducer(ctx, cfg.Brokers, cfg.ProducerTopic, initialise.SearchBuilt, int(envMax), cfg)
 	if err != nil {
 		log.Event(ctx, "could not initialise kafka producer", log.FATAL, log.Error(err), log.Data{"topic": cfg.ProducerTopic})
 		return err
 	}
 
-	searchBuilderErrProducer, err := serviceList.GetProducer(ctx, cfg.Brokers, cfg.EventReporterTopic, initialise.SearchBuilderErr, int(envMax))
+	searchBuilderErrProducer, err := serviceList.GetProducer(ctx, cfg.Brokers, cfg.EventReporterTopic, initialise.SearchBuilderErr, int(envMax), cfg)
 	if err != nil {
 		log.Event(ctx, "could not initialise kafka producer", log.FATAL, log.Error(err), log.Data{"topic": cfg.EventReporterTopic})
 		return err

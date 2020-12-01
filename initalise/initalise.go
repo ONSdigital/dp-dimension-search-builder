@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	kafka "github.com/ONSdigital/dp-kafka"
+	kafka "github.com/ONSdigital/dp-kafka/v2"
 	"github.com/ONSdigital/dp-reporter-client/reporter"
 	"github.com/ONSdigital/dp-search-builder/config"
 )
@@ -31,6 +31,8 @@ const (
 
 var kafkaProducerNames = []string{"SearchBuilt", "SearchBuilderErr"}
 
+var bufferSize = 1
+
 // Values of the kafka producers names
 func (k KafkaProducerName) String() string {
 	return kafkaProducerNames[k]
@@ -38,15 +40,26 @@ func (k KafkaProducerName) String() string {
 
 // GetConsumer returns a kafka consumer, which might not be initialised yet.
 func (e *ExternalServiceList) GetConsumer(ctx context.Context, cfg *config.Config) (kafkaConsumer *kafka.ConsumerGroup, err error) {
-	cgChannels := kafka.CreateConsumerGroupChannels(true)
+
+	kafkaOffset := kafka.OffsetNewest
+
+	if cfg.KafkaOffsetOldest {
+		kafkaOffset = kafka.OffsetOldest
+	}
+
+	cgConfig := &kafka.ConsumerGroupConfig{
+		Offset:       &kafkaOffset,
+		KafkaVersion: &cfg.KafkaVersion,
+	}
+
+	cgChannels := kafka.CreateConsumerGroupChannels(bufferSize)
 	kafkaConsumer, err = kafka.NewConsumerGroup(
 		ctx,
 		cfg.Brokers,
 		cfg.ConsumerTopic,
 		cfg.ConsumerGroup,
-		kafka.OffsetNewest,
-		true,
 		cgChannels,
+		cgConfig,
 	)
 	if err != nil {
 		return
@@ -57,9 +70,12 @@ func (e *ExternalServiceList) GetConsumer(ctx context.Context, cfg *config.Confi
 }
 
 // GetProducer returns a kafka producer, which might not be initialised yet.
-func (e *ExternalServiceList) GetProducer(ctx context.Context, kafkaBrokers []string, topic string, name KafkaProducerName, envMax int) (kafkaProducer *kafka.Producer, err error) {
+func (e *ExternalServiceList) GetProducer(ctx context.Context, kafkaBrokers []string, topic string, name KafkaProducerName, envMax int, cfg *config.Config) (kafkaProducer *kafka.Producer, err error) {
 	pChannels := kafka.CreateProducerChannels()
-	kafkaProducer, err = kafka.NewProducer(ctx, kafkaBrokers, topic, envMax, pChannels)
+	pConfig := &kafka.ProducerConfig{
+		KafkaVersion: &cfg.KafkaVersion,
+	}
+	kafkaProducer, err = kafka.NewProducer(ctx, kafkaBrokers, topic, pChannels, pConfig)
 	if err != nil {
 		return
 	}

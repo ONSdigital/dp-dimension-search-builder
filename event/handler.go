@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/ONSdigital/dp-import/events"
-	kafka "github.com/ONSdigital/dp-kafka"
+	kafka "github.com/ONSdigital/dp-kafka/v2"
 	"github.com/ONSdigital/dp-search-builder/elasticsearch"
 	"github.com/ONSdigital/dp-search-builder/hierarchy"
 	"github.com/ONSdigital/dp-search-builder/models"
