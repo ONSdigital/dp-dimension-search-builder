@@ -83,7 +83,7 @@ func (consumer *Consumer) Consume(messageConsumer *kafka.ConsumerGroup) {
 					log.Event(ctx, "event successfully processed", log.INFO, logData)
 				}
 
-				msg.Commit()
+				msg.CommitAndRelease()
 
 			case eventClose := <-consumer.closing:
 				log.Event(eventClose.ctx, "closing event consumer loop", log.INFO)
