@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
-	kafka "github.com/ONSdigital/dp-kafka"
+	kafka "github.com/ONSdigital/dp-kafka/v2"
 	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-reporter-client/reporter"
 	"github.com/ONSdigital/log.go/log"
@@ -83,7 +83,8 @@ func (consumer *Consumer) Consume(messageConsumer *kafka.ConsumerGroup) {
 					log.Event(ctx, "event successfully processed", log.INFO, logData)
 				}
 
-				messageConsumer.CommitAndRelease(msg)
+				msg.CommitAndRelease()
+
 			case eventClose := <-consumer.closing:
 				log.Event(eventClose.ctx, "closing event consumer loop", log.INFO)
 				close(consumer.closing)
