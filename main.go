@@ -32,7 +32,7 @@ var (
 )
 
 func main() {
-	log.Namespace = "dp-search-builder"
+	log.Namespace = "dp-dimension-search-builder"
 	ctx := context.Background()
 
 	if err := run(ctx); err != nil {
