@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ONSdigital/dp-search-builder/models"
+	"github.com/ONSdigital/dp-dimension-search-builder/models"
 )
 
 // ElasticAPI represents a list of error flags to set error in mocked elastic API

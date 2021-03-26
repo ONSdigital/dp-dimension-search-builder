@@ -1,4 +1,4 @@
-job "dp-search-builder" {
+job "dp-dimension-search-builder" {
   datacenters = ["eu-west-1"]
   region      = "eu"
   type        = "service"
@@ -27,17 +27,17 @@ job "dp-search-builder" {
       mode     = "delay"
     }
 
-    task "dp-search-builder" {
+    task "dp-dimension-search-builder" {
       driver = "docker"
 
       artifact {
-        source = "s3::https://s3-eu-west-1.amazonaws.com/{{DEPLOYMENT_BUCKET}}/dp-search-builder/{{REVISION}}.tar.gz"
+        source = "s3::https://s3-eu-west-1.amazonaws.com/{{DEPLOYMENT_BUCKET}}/dp-dimension-search-builder/{{REVISION}}.tar.gz"
       }
 
       config {
         command = "${NOMAD_TASK_DIR}/start-task"
 
-        args = ["./dp-search-builder"]
+        args = ["./dp-dimension-search-builder"]
 
         image = "{{ECR_URL}}:concourse-{{REVISION}}"
 
@@ -47,7 +47,7 @@ job "dp-search-builder" {
       }
 
       service {
-        name = "dp-search-builder"
+        name = "dp-dimension-search-builder"
 
         port = "http"
         tags = ["publishing"]
@@ -74,7 +74,7 @@ job "dp-search-builder" {
       }
 
       vault {
-        policies = ["dp-search-builder"]
+        policies = ["dp-dimension-search-builder"]
       }
     }
   }

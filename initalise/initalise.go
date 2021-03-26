@@ -7,7 +7,7 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v2"
 	"github.com/ONSdigital/dp-reporter-client/reporter"
-	"github.com/ONSdigital/dp-search-builder/config"
+	"github.com/ONSdigital/dp-dimension-search-builder/config"
 )
 
 // ExternalServiceList represents a list of services

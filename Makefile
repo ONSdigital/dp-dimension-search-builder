@@ -1,5 +1,5 @@
 SHELL=bash
-MAIN=dp-search-builder
+MAIN=dp-dimension-search-builder
 
 BUILD=build
 BIN_DIR?=.

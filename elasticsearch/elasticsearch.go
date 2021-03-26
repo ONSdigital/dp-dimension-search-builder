@@ -3,7 +3,7 @@ package elasticsearch
 import (
 	"context"
 
-	"github.com/ONSdigital/dp-search-builder/models"
+	"github.com/ONSdigital/dp-dimension-search-builder/models"
 )
 
 // APIer - An interface used to access the ElasticAPI

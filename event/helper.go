@@ -4,9 +4,9 @@ import (
 	"context"
 
 	hierarchyModel "github.com/ONSdigital/dp-hierarchy-api/models"
-	"github.com/ONSdigital/dp-search-builder/elasticsearch"
-	"github.com/ONSdigital/dp-search-builder/hierarchy"
-	"github.com/ONSdigital/dp-search-builder/models"
+	"github.com/ONSdigital/dp-dimension-search-builder/elasticsearch"
+	"github.com/ONSdigital/dp-dimension-search-builder/hierarchy"
+	"github.com/ONSdigital/dp-dimension-search-builder/models"
 	"github.com/ONSdigital/log.go/log"
 )
 

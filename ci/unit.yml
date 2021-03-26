@@ -9,7 +9,7 @@ image_resource:
     tag: 1.15.2
 
 inputs:
-  - name: dp-search-builder
+  - name: dp-dimension-search-builder
 
 run:
-  path: dp-search-builder/ci/scripts/unit.sh
+  path: dp-dimension-search-builder/ci/scripts/unit.sh

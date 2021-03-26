@@ -14,9 +14,9 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v2"
 	rchttp "github.com/ONSdigital/dp-rchttp"
-	"github.com/ONSdigital/dp-search-builder/config"
-	"github.com/ONSdigital/dp-search-builder/event"
-	initialise "github.com/ONSdigital/dp-search-builder/initalise"
+	"github.com/ONSdigital/dp-dimension-search-builder/config"
+	"github.com/ONSdigital/dp-dimension-search-builder/event"
+	initialise "github.com/ONSdigital/dp-dimension-search-builder/initalise"
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
@@ -179,17 +179,17 @@ func run(ctx context.Context) error {
 			hasShutdownError = handleShutdownError(shutdownContext, "search built kafka producer", err, hasShutdownError, log.Data{"topic": cfg.ProducerTopic})
 		}
 
-		// If search builder error kafka producer exists, close it
+		// If dimension search builder error kafka producer exists, close it
 		if serviceList.SearchBuilderErrProducer {
-			log.Event(shutdownContext, "closing search builder error kafka producer", log.INFO, log.Data{"topic": cfg.EventReporterTopic})
+			log.Event(shutdownContext, "closing dimension search builder error kafka producer", log.INFO, log.Data{"topic": cfg.EventReporterTopic})
 			err = searchBuilderErrProducer.Close(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "search builder error kafka producer", err, hasShutdownError, log.Data{"topic": cfg.EventReporterTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "dimension search builder error kafka producer", err, hasShutdownError, log.Data{"topic": cfg.EventReporterTopic})
 		}
 
 		// Close consumer loop
-		log.Event(shutdownContext, "closing search builder consumer loop", log.INFO)
+		log.Event(shutdownContext, "closing dimension search builder consumer loop", log.INFO)
 		err = consumer.Close(shutdownContext)
-		hasShutdownError = handleShutdownError(shutdownContext, "search builder consumer loop", err, hasShutdownError, nil)
+		hasShutdownError = handleShutdownError(shutdownContext, "dimension search builder consumer loop", err, hasShutdownError, nil)
 
 		// If kafka consumer exists, close it
 		if serviceList.Consumer {
