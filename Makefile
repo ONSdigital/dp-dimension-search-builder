@@ -1,5 +1,5 @@
 SHELL=bash
-MAIN=dp-search-builder
+MAIN=dp-dimension-search-builder
 
 BUILD=build
 BIN_DIR?=.
@@ -14,7 +14,7 @@ all: audit test build
 
 .PHONY: audit
 audit:
-	nancy go.sum
+	go list -json -m all | nancy sleuth
 
 .PHONY: build
 build:

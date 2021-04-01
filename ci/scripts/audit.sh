@@ -2,6 +2,6 @@
 
 export cwd=$(pwd)
 
-pushd $cwd/dp-search-builder
+pushd $cwd/dp-dimension-search-builder
   make audit
 popd

@@ -2,6 +2,6 @@ FROM onsdigital/dp-concourse-tools-ubuntu
 
 WORKDIR /app/
 
-ADD dp-search-builder .
+ADD dp-dimension-search-builder .
 
-CMD ./dp-search-builder
+CMD ./dp-dimension-search-builder

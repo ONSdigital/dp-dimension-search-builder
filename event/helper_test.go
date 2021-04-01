@@ -7,7 +7,7 @@ import (
 
 	"github.com/ONSdigital/dp-hierarchy-api/models"
 
-	"github.com/ONSdigital/dp-search-builder/mocks"
+	"github.com/ONSdigital/dp-dimension-search-builder/mocks"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

@@ -8,8 +8,8 @@ image_resource:
     tag: latest
 
 inputs:
-  - name: dp-search-builder
-    path: dp-search-builder
+  - name: dp-dimension-search-builder
+    path: dp-dimension-search-builder
 
 run:
-  path: dp-search-builder/ci/scripts/audit.sh
+  path: dp-dimension-search-builder/ci/scripts/audit.sh

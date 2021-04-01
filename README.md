@@ -1,5 +1,5 @@
-dp-search-builder
-==================
+dp-dimension-search-builder
+===========================
 
 Handles inserting of dimension options into elasticsearch once a hierarchy for an instance becomes available;
 and creates an event by sending a message to the kafka `$PRODUCER_TOPIC` so services know when the data has successfully been inserted into elastic.
@@ -23,7 +23,7 @@ Refer to https://github.com/ONSdigital/dp-import#dp-import for infrastructure se
 
 ### Getting started
 
-* Clone the repo `go get github.com/ONSdigital/dp-search-builder`
+* Clone the repo `go get github.com/ONSdigital/dp-dimension-search-builder`
 * Run zookeeper and then kafka
 * Run elasticsearch
 * Run the hierarchy API, see documentation [here](https://github.com/ONSdigital/dp-hierarchy-api)

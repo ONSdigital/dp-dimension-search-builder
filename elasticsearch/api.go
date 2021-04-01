@@ -7,7 +7,7 @@ import (
 
 	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	rchttp "github.com/ONSdigital/dp-rchttp"
-	"github.com/ONSdigital/dp-search-builder/models"
+	"github.com/ONSdigital/dp-dimension-search-builder/models"
 	"github.com/ONSdigital/log.go/log"
 )
 

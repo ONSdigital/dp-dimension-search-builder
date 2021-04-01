@@ -1,4 +1,4 @@
-module github.com/ONSdigital/dp-search-builder
+module github.com/ONSdigital/dp-dimension-search-builder
 
 go 1.15
 
