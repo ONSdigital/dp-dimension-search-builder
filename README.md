@@ -46,7 +46,7 @@ Scripts for updating and debugging Kafka can be found [here](https://github.com/
 | Environment variable         | Default                              | Description
 | ---------------------------- | -------------------------------------| -----------
 | BIND_ADDR                    | :22900                               | The host and port to bind to
-| CONSUMER_GROUP               | dp-search-builder                    | The name of the Kafka consumer group
+| CONSUMER_GROUP               | dp-dimension-search-builder          | The name of the Kafka consumer group
 | ELASTIC_SEARCH_URL           | http://localhost:10200               | The host name for elasticsearch
 | EVENT_REPORTER_TOPIC         | report-events                        | The kafka topic to send errors to
 | GRACEFUL_SHUTDOWN_TIMEOUT    | 5s                                   | The graceful shutdown timeout

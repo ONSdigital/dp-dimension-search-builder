@@ -38,7 +38,7 @@ func Get() (*Config, error) {
 	cfg = &Config{
 		BindAddr:                   ":22900",
 		Brokers:                    []string{"localhost:9092"},
-		ConsumerGroup:              "dp-search-builder",
+		ConsumerGroup:              "dp-dimension-search-builder",
 		ConsumerTopic:              "hierarchy-built",
 		ElasticSearchAPIURL:        "http://localhost:10200",
 		EventReporterTopic:         "report-events",
