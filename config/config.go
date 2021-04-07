@@ -48,7 +48,7 @@ func Get() (*Config, error) {
 		HierarchyAPIURL:            "http://localhost:22600",
 		KafkaMaxBytes:              "2000000",
 		MaxRetries:                 3,
-		ProducerTopic:              "search-built",
+		ProducerTopic:              "dimension-search-built",
 		SearchBuilderURL:           "http://localhost:22900",
 		SignElasticsearchRequests:  false,
 		KafkaVersion:               "1.0.2",
