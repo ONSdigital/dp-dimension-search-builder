@@ -21,7 +21,7 @@ func TestSpec(t *testing.T) {
 			Convey("The values should be set to the expected defaults", func() {
 				So(cfg.BindAddr, ShouldEqual, ":22900")
 				So(cfg.Brokers[0], ShouldEqual, "localhost:9092")
-				So(cfg.ConsumerGroup, ShouldEqual, "dp-search-builder")
+				So(cfg.ConsumerGroup, ShouldEqual, "dp-dimension-search-builder")
 				So(cfg.ConsumerTopic, ShouldEqual, "hierarchy-built")
 				So(cfg.ElasticSearchAPIURL, ShouldEqual, "http://localhost:10200")
 				So(cfg.EventReporterTopic, ShouldEqual, "report-events")
