@@ -30,7 +30,7 @@ func TestSpec(t *testing.T) {
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
 				So(cfg.HierarchyAPIURL, ShouldEqual, "http://localhost:22600")
 				So(cfg.KafkaMaxBytes, ShouldEqual, "2000000")
-				So(cfg.ProducerTopic, ShouldEqual, "search-built")
+				So(cfg.ProducerTopic, ShouldEqual, "dimension-search-built")
 				So(cfg.MaxRetries, ShouldEqual, 3)
 				So(cfg.SearchBuilderURL, ShouldEqual, "http://localhost:22900")
 			})
