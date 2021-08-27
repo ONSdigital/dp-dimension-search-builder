@@ -8,7 +8,7 @@ import (
 	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-dimension-search-builder/models"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 const indexTypeDimensionOption string = "dimension_option"
@@ -63,7 +63,7 @@ func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension str
 
 // AddDimensionOption adds a document to an elastic search index
 func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension string, dimensionOption models.DimensionOption) (int, error) {
-	log.Event(ctx, "adding dimension option", log.INFO, log.Data{"dimension_option": dimensionOption})
+	log.Info(ctx, "adding dimension option", log.Data{"dimension_option": dimensionOption})
 	if dimensionOption.Code == "" {
 		return 0, errors.New("missing dimension option code")
 	}
