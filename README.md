@@ -57,6 +57,7 @@ Scripts for updating and debugging Kafka can be found [here](https://github.com/
 | KAFKA_ADDR                   | localhost:9092                       | A list of Kafka host addresses
 | KAFKA_MAX_BYTES              | 2000000                              | The max message size for kafka producer
 | KAFKA_VERSION                | "1.0.2"                              | The kafka version that this service expects to connect to
+| KAFKA_OFFSET_OLDEST          | true                                 | sets kafka offset to oldest if `true`
 | KAFKA_SEC_PROTO              | _unset_                              | if set to `TLS`, kafka connections will use TLS [1]
 | KAFKA_SEC_CLIENT_KEY         | _unset_                              | PEM for the client key [1]
 | KAFKA_SEC_CLIENT_CERT        | _unset_                              | PEM for the client certificate [1]
