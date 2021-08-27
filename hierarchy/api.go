@@ -10,7 +10,7 @@ import (
 
 	"github.com/ONSdigital/dp-hierarchy-api/models"
 	rchttp "github.com/ONSdigital/dp-rchttp"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // API aggregates a client and URL and other common data for accessing the API
@@ -46,13 +46,13 @@ func (api *API) GetRootDimensionOption(ctx context.Context, instanceID, dimensio
 	logData["http_code"] = httpCode
 	logData["json_result"] = jsonResult
 	if err != nil {
-		log.Event(ctx, "failed to get root dimention option", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to get root dimention option", err, logData)
 		return nil, handleError(httpCode, err, "root dimension option")
 	}
 
 	rootDimensionOption = &models.Response{}
 	if err = json.Unmarshal(jsonResult, rootDimensionOption); err != nil {
-		log.Event(ctx, "failed to unmarshal root dimension option", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to unmarshal root dimension option", err, logData)
 		return
 	}
 
@@ -68,13 +68,13 @@ func (api *API) GetDimensionOption(ctx context.Context, instanceID, dimension, c
 	logData["http_code"] = httpCode
 	logData["json_result"] = jsonResult
 	if err != nil {
-		log.Event(ctx, "failed to get dimension option", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to get dimension option", err, logData)
 		return nil, handleError(httpCode, err, "dimension option")
 	}
 
 	dimensionOption = &models.Response{}
 	if err = json.Unmarshal(jsonResult, dimensionOption); err != nil {
-		log.Event(ctx, "failed to unmarshal dimension option", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to unmarshal dimension option", err, logData)
 		return
 	}
 
@@ -87,7 +87,7 @@ func (api *API) callHierarchyAPI(ctx context.Context, path string) ([]byte, int,
 
 	URL, err := url.Parse(path)
 	if err != nil {
-		log.Event(ctx, "failed to create url for hierarchy api call", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to create url for hierarchy api call", err, logData)
 		return nil, 0, err
 	}
 	path = URL.String()
@@ -95,13 +95,13 @@ func (api *API) callHierarchyAPI(ctx context.Context, path string) ([]byte, int,
 
 	req, err := http.NewRequest(method, path, nil)
 	if err != nil {
-		log.Event(ctx, "failed to create request for hierarchy api", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to create request for hierarchy api", err, logData)
 		return nil, 0, err
 	}
 
 	resp, err := api.clienter.Do(ctx, req)
 	if err != nil {
-		log.Event(ctx, "failed to action hierarchy api", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to action hierarchy api", err, logData)
 		return nil, 0, err
 	}
 	defer resp.Body.Close()
@@ -113,7 +113,7 @@ func (api *API) callHierarchyAPI(ctx context.Context, path string) ([]byte, int,
 
 	jsonBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Event(ctx, "failed to read body from dataset api", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to read body from dataset api", err, logData)
 		return nil, resp.StatusCode, err
 	}
 

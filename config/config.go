@@ -24,6 +24,11 @@ type Config struct {
 	SearchBuilderURL           string        `envconfig:"SEARCH_BUILDER_URL"`
 	SignElasticsearchRequests  bool          `envconfig:"SIGN_ELASTICSEARCH_REQUESTS"`
 	KafkaVersion               string        `envconfig:"KAFKA_VERSION"`
+	KafkaSecProtocol           string        `envconfig:"KAFKA_SEC_PROTO"`
+	KafkaSecCACerts            string        `envconfig:"KAFKA_SEC_CA_CERTS"`
+	KafkaSecClientCert         string        `envconfig:"KAFKA_SEC_CLIENT_CERT"`
+	KafkaSecClientKey          string        `envconfig:"KAFKA_SEC_CLIENT_KEY"       json:"-"`
+	KafkaSecSkipVerify         bool          `envconfig:"KAFKA_SEC_SKIP_VERIFY"`
 	KafkaOffsetOldest          bool          `envconfig:"KAFKA_OFFSET_OLDEST"`
 }
 
@@ -47,12 +52,12 @@ func Get() (*Config, error) {
 		HealthCheckCriticalTimeout: 90 * time.Second,
 		HierarchyAPIURL:            "http://localhost:22600",
 		KafkaMaxBytes:              "2000000",
+		KafkaVersion:               "1.0.2",
+		KafkaOffsetOldest:          true,
 		MaxRetries:                 3,
 		ProducerTopic:              "dimension-search-built",
 		SearchBuilderURL:           "http://localhost:22900",
 		SignElasticsearchRequests:  false,
-		KafkaVersion:               "1.0.2",
-		KafkaOffsetOldest:          true,
 	}
 
 	return cfg, envconfig.Process("", cfg)

@@ -9,7 +9,7 @@ import (
 	"github.com/ONSdigital/dp-dimension-search-builder/elasticsearch"
 	"github.com/ONSdigital/dp-dimension-search-builder/hierarchy"
 	"github.com/ONSdigital/dp-dimension-search-builder/models"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 type hierarchyBuilder struct {
@@ -32,7 +32,7 @@ func (c *Consumer) handleMessage(ctx context.Context, message kafka.Message) (st
 	}
 	event, err := readMessage(message.GetData())
 	if err != nil {
-		log.Event(ctx, "failed to marshal event message", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to marshal event message", err)
 		return "", "", err
 	}
 
@@ -48,7 +48,7 @@ func (c *Consumer) handleMessage(ctx context.Context, message kafka.Message) (st
 	// hierarchy and add super parent to elastic
 	rootDimensionOption, err := apis.hierarchyAPI.GetRootDimensionOption(ctx, instanceID, dimension)
 	if err != nil {
-		log.Event(ctx, "failed request to hierarchy api", log.ERROR, log.Error(err), log.Data{"instance_id": instanceID, "dimension": dimension})
+		log.Error(ctx, "failed request to hierarchy api", err, log.Data{"instance_id": instanceID, "dimension": dimension})
 		return instanceID, dimension, err
 	}
 
@@ -57,17 +57,17 @@ func (c *Consumer) handleMessage(ctx context.Context, message kafka.Message) (st
 	apiStatus, err := apis.elasticAPI.DeleteSearchIndex(ctx, instanceID, dimension)
 	if err != nil {
 		if apiStatus != 404 {
-			log.Event(ctx, "unable to remove index before creating new one", log.ERROR, log.Error(err), log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
+			log.Error(ctx, "unable to remove index before creating new one", err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 			return instanceID, dimension, err
 		}
 	} else {
-		log.Event(ctx, "index removed before creating new one", log.INFO, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
+		log.Info(ctx, "index removed before creating new one", log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 	}
 
 	// create index
 	apiStatus, err = apis.elasticAPI.CreateSearchIndex(ctx, instanceID, dimension)
 	if err != nil {
-		log.Event(ctx, "failed to create search index", log.ERROR, log.Error(err), log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
+		log.Error(ctx, "failed to create search index", err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 		return instanceID, dimension, err
 	}
 
@@ -82,7 +82,7 @@ func (c *Consumer) handleMessage(ctx context.Context, message kafka.Message) (st
 	// Add root node document to index
 	apiStatus, err = apis.elasticAPI.AddDimensionOption(ctx, instanceID, dimension, dimensionOption)
 	if err != nil {
-		log.Event(ctx, "failed to add root (super parent) dimension option", log.ERROR, log.Error(err), log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
+		log.Error(ctx, "failed to add root (super parent) dimension option", err, log.Data{"status": apiStatus, "instance_id": instanceID, "dimension": dimension})
 		return instanceID, dimension, err
 	}
 
@@ -91,7 +91,7 @@ func (c *Consumer) handleMessage(ctx context.Context, message kafka.Message) (st
 		codeID := child.Links["code"].ID
 
 		if err = apis.addChildrenToSearchIndex(ctx, instanceID, dimension, codeID); err != nil {
-			log.Event(ctx, "failed to add children dimension options", log.ERROR, log.Error(err), log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
+			log.Error(ctx, "failed to add children dimension options", err, log.Data{"instance_id": instanceID, "dimension": dimension, "code_id": codeID})
 			return instanceID, dimension, err
 		}
 	}
