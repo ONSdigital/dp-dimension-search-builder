@@ -12,7 +12,7 @@ require (
 	github.com/ONSdigital/dp-rchttp v1.0.0
 	github.com/ONSdigital/dp-reporter-client v1.0.1
 	github.com/ONSdigital/go-ns v0.0.0-20200205115900-a11716f93bad
-	github.com/ONSdigital/log.go v1.0.1
+	github.com/ONSdigital/log.go/v2 v2.0.9
 	github.com/gorilla/mux v1.8.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/smartystreets/assertions v1.0.1 // indirect
