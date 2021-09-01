@@ -3,13 +3,12 @@ module github.com/ONSdigital/dp-dimension-search-builder
 go 1.16
 
 require (
-	github.com/ONSdigital/dp-api-clients-go v1.41.1
+	github.com/ONSdigital/dp-api-clients-go v1.43.0
 	github.com/ONSdigital/dp-elasticsearch/v2 v2.0.1
 	github.com/ONSdigital/dp-healthcheck v1.1.0
 	github.com/ONSdigital/dp-hierarchy-api v0.0.0-20200309110613-76f2517bcbed
 	github.com/ONSdigital/dp-import v0.0.0-20180202121531-d3cc28e452c3
 	github.com/ONSdigital/dp-kafka/v2 v2.1.2
-	github.com/ONSdigital/dp-net v1.2.0 // indirect
 	github.com/ONSdigital/dp-rchttp v1.0.0
 	github.com/ONSdigital/dp-reporter-client v1.1.0
 	github.com/ONSdigital/go-ns v0.0.0-20210831102424-ebdecc20fe9e
