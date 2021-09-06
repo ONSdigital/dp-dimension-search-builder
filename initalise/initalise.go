@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ONSdigital/dp-dimension-search-builder/config"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v2"
 	"github.com/ONSdigital/dp-reporter-client/reporter"
-	"github.com/ONSdigital/dp-dimension-search-builder/config"
 )
 
 // ExternalServiceList represents a list of services
@@ -51,6 +51,14 @@ func (e *ExternalServiceList) GetConsumer(ctx context.Context, cfg *config.Confi
 		Offset:       &kafkaOffset,
 		KafkaVersion: &cfg.KafkaVersion,
 	}
+	if cfg.KafkaSecProtocol == "TLS" {
+		cgConfig.SecurityConfig = kafka.GetSecurityConfig(
+			cfg.KafkaSecCACerts,
+			cfg.KafkaSecClientCert,
+			cfg.KafkaSecClientKey,
+			cfg.KafkaSecSkipVerify,
+		)
+	}
 
 	cgChannels := kafka.CreateConsumerGroupChannels(bufferSize)
 	kafkaConsumer, err = kafka.NewConsumerGroup(
@@ -75,6 +83,15 @@ func (e *ExternalServiceList) GetProducer(ctx context.Context, kafkaBrokers []st
 	pConfig := &kafka.ProducerConfig{
 		KafkaVersion: &cfg.KafkaVersion,
 	}
+	if cfg.KafkaSecProtocol == "TLS" {
+		pConfig.SecurityConfig = kafka.GetSecurityConfig(
+			cfg.KafkaSecCACerts,
+			cfg.KafkaSecClientCert,
+			cfg.KafkaSecClientKey,
+			cfg.KafkaSecSkipVerify,
+		)
+	}
+
 	kafkaProducer, err = kafka.NewProducer(ctx, kafkaBrokers, topic, pChannels, pConfig)
 	if err != nil {
 		return
