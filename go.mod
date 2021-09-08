@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/ONSdigital/dp-api-clients-go v1.43.0
-	github.com/ONSdigital/dp-elasticsearch/v2 v2.2.0
+	github.com/ONSdigital/dp-elasticsearch/v2 v2.0.1
 	github.com/ONSdigital/dp-healthcheck v1.1.1
 	github.com/ONSdigital/dp-hierarchy-api v1.8.0
 	github.com/ONSdigital/dp-import v1.2.1
@@ -13,7 +13,6 @@ require (
 	github.com/ONSdigital/dp-reporter-client v1.1.0
 	github.com/ONSdigital/go-ns v0.0.0-20210831102424-ebdecc20fe9e
 	github.com/ONSdigital/log.go/v2 v2.0.9
-	github.com/aws/aws-sdk-go v1.40.37 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/kelseyhightower/envconfig v1.4.0
