@@ -44,6 +44,8 @@ Scripts for updating and debugging Kafka can be found [here](https://github.com/
 
 | Environment variable         | Default                              | Description
 | ---------------------------- | -------------------------------------| -----------
+| AWS_REGION                   | eu-west-1                            | The AWS region to use when signing requests with AWS SDK
+| AWS_SERVICE                  | "es"                                 | The aws service that the AWS SDK signing mechanism needs to sign a request
 | BIND_ADDR                    | :22900                               | The host and port to bind to
 | CONSUMER_GROUP               | dp-dimension-search-builder          | The name of the Kafka consumer group
 | ELASTIC_SEARCH_URL           | http://localhost:10200               | The host name for elasticsearch

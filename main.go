@@ -10,13 +10,13 @@ import (
 	"syscall"
 
 	"github.com/ONSdigital/dp-api-clients-go/hierarchy"
+	"github.com/ONSdigital/dp-dimension-search-builder/config"
+	"github.com/ONSdigital/dp-dimension-search-builder/event"
+	initialise "github.com/ONSdigital/dp-dimension-search-builder/initalise"
 	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v2"
 	rchttp "github.com/ONSdigital/dp-rchttp"
-	"github.com/ONSdigital/dp-dimension-search-builder/config"
-	"github.com/ONSdigital/dp-dimension-search-builder/event"
-	initialise "github.com/ONSdigital/dp-dimension-search-builder/initalise"
 	"github.com/ONSdigital/go-ns/server"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
@@ -55,7 +55,7 @@ func run(ctx context.Context) error {
 
 	log.Info(ctx, "config on startup", log.Data{"config": cfg})
 
-	envMax, err := strconv.ParseInt(cfg.KafkaMaxBytes, 10, 32)
+	envMax, err := strconv.ParseInt(cfg.KafkaConfig.MaxBytes, 10, 32)
 	if err != nil {
 		log.Fatal(ctx, "encountered error parsing kafka max bytes", err)
 		return err
@@ -64,21 +64,21 @@ func run(ctx context.Context) error {
 	// External services and their initialization state
 	var serviceList initialise.ExternalServiceList
 
-	syncConsumerGroup, err := serviceList.GetConsumer(ctx, cfg)
+	syncConsumerGroup, err := serviceList.GetConsumer(ctx, cfg.KafkaConfig)
 	if err != nil {
-		log.Fatal(ctx, "could not initialise kafka consumer", err, log.Data{"group": cfg.ConsumerGroup, "topic": cfg.ConsumerTopic})
+		log.Fatal(ctx, "could not initialise kafka consumer", err, log.Data{"group": cfg.KafkaConfig.ConsumerGroup, "topic": cfg.KafkaConfig.ConsumerTopic})
 		return err
 	}
 
-	searchBuiltProducer, err := serviceList.GetProducer(ctx, cfg.Brokers, cfg.ProducerTopic, initialise.SearchBuilt, int(envMax), cfg)
+	searchBuiltProducer, err := serviceList.GetProducer(ctx, cfg.KafkaConfig, cfg.KafkaConfig.ProducerTopic, initialise.SearchBuilt, int(envMax))
 	if err != nil {
-		log.Fatal(ctx, "could not initialise kafka producer", err, log.Data{"topic": cfg.ProducerTopic})
+		log.Fatal(ctx, "could not initialise kafka producer", err, log.Data{"topic": cfg.KafkaConfig.ProducerTopic})
 		return err
 	}
 
-	searchBuilderErrProducer, err := serviceList.GetProducer(ctx, cfg.Brokers, cfg.EventReporterTopic, initialise.SearchBuilderErr, int(envMax), cfg)
+	searchBuilderErrProducer, err := serviceList.GetProducer(ctx, cfg.KafkaConfig, cfg.KafkaConfig.EventReporterTopic, initialise.SearchBuilderErr, int(envMax))
 	if err != nil {
-		log.Fatal(ctx, "could not initialise kafka producer", err, log.Data{"topic": cfg.EventReporterTopic})
+		log.Fatal(ctx, "could not initialise kafka producer", err, log.Data{"topic": cfg.KafkaConfig.EventReporterTopic})
 		return err
 	}
 
@@ -134,9 +134,9 @@ func run(ctx context.Context) error {
 	// Start listening for event messages
 	consumer.Consume(syncConsumerGroup)
 
-	syncConsumerGroup.Channels().LogErrors(ctx, "error received from kafka consumer, topic: "+cfg.ConsumerTopic)
-	searchBuiltProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.ProducerTopic)
-	searchBuilderErrProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.EventReporterTopic)
+	syncConsumerGroup.Channels().LogErrors(ctx, "error received from kafka consumer, topic: "+cfg.KafkaConfig.ConsumerTopic)
+	searchBuiltProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.KafkaConfig.ProducerTopic)
+	searchBuilderErrProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.KafkaConfig.EventReporterTopic)
 
 	// block until a fatal error, signal or eventLoopDone - then proceed to shutdown
 	select {
@@ -167,23 +167,23 @@ func run(ctx context.Context) error {
 
 		// If kafka consumer exists, stop listening to it. (Will close later)
 		if serviceList.Consumer {
-			log.Info(shutdownContext, "closing kafka consumer listener", log.Data{"topic": cfg.ConsumerTopic})
+			log.Info(shutdownContext, "closing kafka consumer listener", log.Data{"topic": cfg.KafkaConfig.ConsumerTopic})
 			err = syncConsumerGroup.StopListeningToConsumer(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "kafka consumer listener", err, hasShutdownError, log.Data{"topic": cfg.ConsumerTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "kafka consumer listener", err, hasShutdownError, log.Data{"topic": cfg.KafkaConfig.ConsumerTopic})
 		}
 
 		// If search built kafka producer exists, close it
 		if serviceList.SearchBuiltProducer {
-			log.Info(shutdownContext, "closing search built kafka producer", log.Data{"topic": cfg.ProducerTopic})
+			log.Info(shutdownContext, "closing search built kafka producer", log.Data{"topic": cfg.KafkaConfig.ProducerTopic})
 			err = searchBuiltProducer.Close(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "search built kafka producer", err, hasShutdownError, log.Data{"topic": cfg.ProducerTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "search built kafka producer", err, hasShutdownError, log.Data{"topic": cfg.KafkaConfig.ProducerTopic})
 		}
 
 		// If dimension search builder error kafka producer exists, close it
 		if serviceList.SearchBuilderErrProducer {
-			log.Info(shutdownContext, "closing dimension search builder error kafka producer", log.Data{"topic": cfg.EventReporterTopic})
+			log.Info(shutdownContext, "closing dimension search builder error kafka producer", log.Data{"topic": cfg.KafkaConfig.EventReporterTopic})
 			err = searchBuilderErrProducer.Close(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "dimension search builder error kafka producer", err, hasShutdownError, log.Data{"topic": cfg.EventReporterTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "dimension search builder error kafka producer", err, hasShutdownError, log.Data{"topic": cfg.KafkaConfig.EventReporterTopic})
 		}
 
 		// Close consumer loop
@@ -193,9 +193,9 @@ func run(ctx context.Context) error {
 
 		// If kafka consumer exists, close it
 		if serviceList.Consumer {
-			log.Info(shutdownContext, "closing kafka consumer", log.Data{"topic": cfg.ConsumerTopic})
+			log.Info(shutdownContext, "closing kafka consumer", log.Data{"topic": cfg.KafkaConfig.ConsumerTopic})
 			err = syncConsumerGroup.Close(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "kafka consumer", err, hasShutdownError, log.Data{"topic": cfg.ConsumerTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "kafka consumer", err, hasShutdownError, log.Data{"topic": cfg.KafkaConfig.ConsumerTopic})
 		}
 	}()
 
