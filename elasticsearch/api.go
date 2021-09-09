@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
-	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-dimension-search-builder/models"
+	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
+	"github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -19,12 +19,12 @@ var ErrorUnexpectedStatusCode = errors.New("unexpected status code from api")
 
 // API aggregates a client and URL and other common data for accessing the API
 type API struct {
-	clienter            rchttp.Clienter
+	clienter            http.Clienter
 	elasticSearchClient *elasticsearch.Client
 }
 
 // NewElasticSearchAPI creates an ElasticSearchAPI object
-func NewElasticSearchAPI(clienter rchttp.Clienter, elasticSearchClient *elasticsearch.Client) *API {
+func NewElasticSearchAPI(clienter http.Clienter, elasticSearchClient *elasticsearch.Client) *API {
 
 	return &API{
 		clienter:            clienter,

@@ -9,9 +9,9 @@ require (
 	github.com/ONSdigital/dp-hierarchy-api v1.8.0
 	github.com/ONSdigital/dp-import v1.2.1
 	github.com/ONSdigital/dp-kafka/v2 v2.4.1
-	github.com/ONSdigital/dp-rchttp v1.0.0
+	github.com/ONSdigital/dp-net v1.2.0
 	github.com/ONSdigital/dp-reporter-client v1.1.0
-	github.com/ONSdigital/go-ns v0.0.0-20210831102424-ebdecc20fe9e
+	github.com/ONSdigital/go-ns v0.0.0-20210831102424-ebdecc20fe9e // indirect
 	github.com/ONSdigital/log.go/v2 v2.0.9
 	github.com/aws/aws-sdk-go v1.40.38 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
