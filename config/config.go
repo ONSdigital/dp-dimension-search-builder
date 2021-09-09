@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
@@ -85,6 +87,10 @@ func Get() (*Config, error) {
 
 	if err := envconfig.Process("", cfg); err != nil {
 		return cfg, err
+	}
+
+	if errs := cfg.KafkaConfig.validateKafkaValues(); len(errs) != 0 {
+		return nil, fmt.Errorf("kafka config validation errors: %v", strings.Join(errs, ", "))
 	}
 
 	return cfg, nil
