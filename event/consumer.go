@@ -54,7 +54,7 @@ func NewConsumer(clienter http.Clienter, hierarchyAPIURL string, elasticSearchCl
 }
 
 // Consume handles consumption of events
-func (consumer *Consumer) Consume(messageConsumer *kafka.ConsumerGroup) {
+func (consumer *Consumer) Consume(ctx context.Context, messageConsumer *kafka.ConsumerGroup) {
 
 	// eventLoop
 	go func() {
@@ -63,8 +63,6 @@ func (consumer *Consumer) Consume(messageConsumer *kafka.ConsumerGroup) {
 		for {
 			select {
 			case msg := <-messageConsumer.Channels().Upstream:
-				ctx := context.Background()
-
 				instanceID, dimension, err := consumer.handleMessage(ctx, msg)
 				logData := log.Data{"func": "service.Start.eventLoop", "instance_id": instanceID, "dimension": dimension, "kafka_offset": msg.Offset()}
 				if err != nil {

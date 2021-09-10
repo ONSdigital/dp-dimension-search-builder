@@ -14,7 +14,6 @@ const KafkaTLSProtocolFlag = "TLS"
 // Config is the filing resource handler config
 type Config struct {
 	AwsRegion                  string        `envconfig:"AWS_REGION"`
-	AwsSdkSigner               bool          `envconfig:"AWS_SDK_SIGNER"`
 	AwsService                 string        `envconfig:"AWS_SERVICE"`
 	BindAddr                   string        `envconfig:"BIND_ADDR"`
 	ElasticSearchAPIURL        string        `envconfig:"ELASTIC_SEARCH_URL"`
@@ -50,7 +49,6 @@ var cfg *Config
 func getDefaultConfig() *Config {
 	return &Config{
 		AwsRegion:                  "eu-west-1",
-		AwsSdkSigner:               false,
 		AwsService:                 "es",
 		BindAddr:                   ":22900",
 		ElasticSearchAPIURL:        "http://localhost:10200",

@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-dimension-search-builder/config"
 	"github.com/ONSdigital/dp-dimension-search-builder/event"
 	initialise "github.com/ONSdigital/dp-dimension-search-builder/initalise"
+	esauth "github.com/ONSdigital/dp-elasticsearch/v2/awsauth"
 	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v2"
@@ -96,7 +97,18 @@ func run(ctx context.Context) error {
 	}
 
 	hierarchyClient := hierarchy.New(cfg.HierarchyAPIURL)
-	elasticSearchClient := elasticsearch.NewClient(cfg.ElasticSearchAPIURL, cfg.SignElasticsearchRequests, cfg.MaxRetries)
+
+	var awsSDKSigner *esauth.Signer
+	if cfg.SignElasticsearchRequests {
+		awsSDKSigner, err = esauth.NewAwsSigner("", "", cfg.AwsRegion, cfg.AwsService)
+		if err != nil {
+			log.Error(ctx, "failed to create aws v4 signer", err)
+			os.Exit(1)
+		}
+	}
+	elasticSearchHTTPClient := http.NewClient()
+	elasticSearchHTTPClient.SetMaxRetries(cfg.MaxRetries)
+	elasticSearchClient := elasticsearch.NewClientWithHTTPClientAndAwsSigner(cfg.ElasticSearchAPIURL, awsSDKSigner, cfg.SignElasticsearchRequests, elasticSearchHTTPClient)
 
 	// Add a list of checkers to HealthCheck
 	if err := registerCheckers(ctx, &hc, syncConsumerGroup, searchBuiltProducer, searchBuilderErrProducer, elasticSearchClient, *hierarchyClient); err != nil {
@@ -131,7 +143,7 @@ func run(ctx context.Context) error {
 	consumer := event.NewConsumer(clienter, cfg.HierarchyAPIURL, elasticSearchClient, searchBuiltProducer, errorReporter)
 
 	// Start listening for event messages
-	consumer.Consume(syncConsumerGroup)
+	consumer.Consume(ctx, syncConsumerGroup)
 
 	syncConsumerGroup.Channels().LogErrors(ctx, "error received from kafka consumer, topic: "+cfg.KafkaConfig.ConsumerTopic)
 	searchBuiltProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.KafkaConfig.ProducerTopic)

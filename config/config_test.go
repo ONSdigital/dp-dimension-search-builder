@@ -22,7 +22,6 @@ func TestGet(t *testing.T) {
 
 				Convey("And the values should be set to the expected defaults", func() {
 					So(cfg.AwsRegion, ShouldEqual, "eu-west-1")
-					So(cfg.AwsSdkSigner, ShouldBeFalse)
 					So(cfg.AwsService, ShouldEqual, "es")
 					So(cfg.BindAddr, ShouldEqual, ":22900")
 					So(cfg.ElasticSearchAPIURL, ShouldEqual, "http://localhost:10200")
