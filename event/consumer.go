@@ -7,7 +7,7 @@ import (
 
 	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	kafka "github.com/ONSdigital/dp-kafka/v2"
-	rchttp "github.com/ONSdigital/dp-rchttp"
+	"github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/dp-reporter-client/reporter"
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -23,7 +23,7 @@ type Consumer struct {
 type Service struct {
 	ErrorReporter       reporter.ImportErrorReporter
 	HierarchyAPIURL     string
-	HTTPClienter        rchttp.Clienter
+	HTTPClienter        http.Clienter
 	SearchBuiltProducer *kafka.Producer
 	ElasticSearchClient *elasticsearch.Client
 }
@@ -33,7 +33,7 @@ type eventClose struct {
 }
 
 // NewConsumer returns a new consumer instance.
-func NewConsumer(clienter rchttp.Clienter, hierarchyAPIURL string, elasticSearchClient *elasticsearch.Client,
+func NewConsumer(clienter http.Clienter, hierarchyAPIURL string, elasticSearchClient *elasticsearch.Client,
 	searchBuiltProducer *kafka.Producer, errorReporter reporter.ImportErrorReporter) *Consumer {
 
 	service := Service{
@@ -54,7 +54,7 @@ func NewConsumer(clienter rchttp.Clienter, hierarchyAPIURL string, elasticSearch
 }
 
 // Consume handles consumption of events
-func (consumer *Consumer) Consume(messageConsumer *kafka.ConsumerGroup) {
+func (consumer *Consumer) Consume(ctx context.Context, messageConsumer *kafka.ConsumerGroup) {
 
 	// eventLoop
 	go func() {
@@ -63,8 +63,6 @@ func (consumer *Consumer) Consume(messageConsumer *kafka.ConsumerGroup) {
 		for {
 			select {
 			case msg := <-messageConsumer.Channels().Upstream:
-				ctx := context.Background()
-
 				instanceID, dimension, err := consumer.handleMessage(ctx, msg)
 				logData := log.Data{"func": "service.Start.eventLoop", "instance_id": instanceID, "dimension": dimension, "kafka_offset": msg.Offset()}
 				if err != nil {

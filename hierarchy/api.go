@@ -9,18 +9,18 @@ import (
 	"net/url"
 
 	"github.com/ONSdigital/dp-hierarchy-api/models"
-	rchttp "github.com/ONSdigital/dp-rchttp"
+	dphttp "github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // API aggregates a client and URL and other common data for accessing the API
 type API struct {
-	clienter rchttp.Clienter
+	clienter dphttp.Clienter
 	url      string
 }
 
 // NewHierarchyAPI creates an HierarchyAPI object
-func NewHierarchyAPI(clienter rchttp.Clienter, hierarchyAPIURL string) *API {
+func NewHierarchyAPI(clienter dphttp.Clienter, hierarchyAPIURL string) *API {
 	return &API{
 		clienter: clienter,
 		url:      hierarchyAPIURL,
