@@ -102,8 +102,8 @@ func run(ctx context.Context) error {
 	if cfg.SignElasticsearchRequests {
 		awsSDKSigner, err = esauth.NewAwsSigner("", "", cfg.AwsRegion, cfg.AwsService)
 		if err != nil {
-			log.Error(ctx, "failed to create aws v4 signer", err)
-			os.Exit(1)
+			log.Fatal(ctx, "failed to create aws v4 signer", err)
+			return err
 		}
 	}
 	elasticSearchHTTPClient := http.NewClient()
