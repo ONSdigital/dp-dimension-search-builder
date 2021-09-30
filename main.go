@@ -10,15 +10,15 @@ import (
 	"syscall"
 
 	"github.com/ONSdigital/dp-api-clients-go/hierarchy"
-	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
-	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	kafka "github.com/ONSdigital/dp-kafka/v2"
-	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-dimension-search-builder/config"
 	"github.com/ONSdigital/dp-dimension-search-builder/event"
 	initialise "github.com/ONSdigital/dp-dimension-search-builder/initalise"
-	"github.com/ONSdigital/go-ns/server"
-	"github.com/ONSdigital/log.go/log"
+	esauth "github.com/ONSdigital/dp-elasticsearch/v2/awsauth"
+	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
+	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	kafka "github.com/ONSdigital/dp-kafka/v2"
+	"github.com/ONSdigital/dp-net/http"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
 
@@ -36,7 +36,7 @@ func main() {
 	ctx := context.Background()
 
 	if err := run(ctx); err != nil {
-		log.Event(ctx, "application unexpectedly failed", log.ERROR, log.Error(err))
+		log.Error(ctx, "application unexpectedly failed", err)
 		os.Exit(1)
 	}
 
@@ -49,55 +49,66 @@ func run(ctx context.Context) error {
 
 	cfg, err := config.Get()
 	if err != nil {
-		log.Event(ctx, "failed to retrieve configuration", log.FATAL, log.Error(err))
+		log.Fatal(ctx, "failed to retrieve configuration", err)
 		return err
 	}
 
-	log.Event(ctx, "config on startup", log.INFO, log.Data{"config": cfg})
+	log.Info(ctx, "config on startup", log.Data{"config": cfg})
 
-	envMax, err := strconv.ParseInt(cfg.KafkaMaxBytes, 10, 32)
+	envMax, err := strconv.ParseInt(cfg.KafkaConfig.MaxBytes, 10, 32)
 	if err != nil {
-		log.Event(ctx, "encountered error parsing kafka max bytes", log.FATAL, log.Error(err))
+		log.Fatal(ctx, "encountered error parsing kafka max bytes", err)
 		return err
 	}
 
 	// External services and their initialization state
 	var serviceList initialise.ExternalServiceList
 
-	syncConsumerGroup, err := serviceList.GetConsumer(ctx, cfg)
+	syncConsumerGroup, err := serviceList.GetConsumer(ctx, cfg.KafkaConfig)
 	if err != nil {
-		log.Event(ctx, "could not initialise kafka consumer", log.FATAL, log.Error(err), log.Data{"group": cfg.ConsumerGroup, "topic": cfg.ConsumerTopic})
+		log.Fatal(ctx, "could not initialise kafka consumer", err, log.Data{"group": cfg.KafkaConfig.ConsumerGroup, "topic": cfg.KafkaConfig.ConsumerTopic})
 		return err
 	}
 
-	searchBuiltProducer, err := serviceList.GetProducer(ctx, cfg.Brokers, cfg.ProducerTopic, initialise.SearchBuilt, int(envMax), cfg)
+	searchBuiltProducer, err := serviceList.GetProducer(ctx, cfg.KafkaConfig, cfg.KafkaConfig.ProducerTopic, initialise.SearchBuilt, int(envMax))
 	if err != nil {
-		log.Event(ctx, "could not initialise kafka producer", log.FATAL, log.Error(err), log.Data{"topic": cfg.ProducerTopic})
+		log.Fatal(ctx, "could not initialise kafka producer", err, log.Data{"topic": cfg.KafkaConfig.ProducerTopic})
 		return err
 	}
 
-	searchBuilderErrProducer, err := serviceList.GetProducer(ctx, cfg.Brokers, cfg.EventReporterTopic, initialise.SearchBuilderErr, int(envMax), cfg)
+	searchBuilderErrProducer, err := serviceList.GetProducer(ctx, cfg.KafkaConfig, cfg.KafkaConfig.EventReporterTopic, initialise.SearchBuilderErr, int(envMax))
 	if err != nil {
-		log.Event(ctx, "could not initialise kafka producer", log.FATAL, log.Error(err), log.Data{"topic": cfg.EventReporterTopic})
+		log.Fatal(ctx, "could not initialise kafka producer", err, log.Data{"topic": cfg.KafkaConfig.EventReporterTopic})
 		return err
 	}
 
 	// Get Error reporter
 	errorReporter, err := serviceList.GetImportErrorReporter(searchBuilderErrProducer, log.Namespace)
 	if err != nil {
-		log.Event(ctx, "error while attempting to create error reporter client", log.FATAL, log.Error(err))
+		log.Fatal(ctx, "error while attempting to create error reporter client", err)
 		return err
 	}
 
 	// Get HealthCheck
 	hc, err := serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
 	if err != nil {
-		log.Event(ctx, "could not instantiate healthcheck", log.FATAL, log.Error(err))
+		log.Fatal(ctx, "could not instantiate healthcheck", err)
 		return err
 	}
 
 	hierarchyClient := hierarchy.New(cfg.HierarchyAPIURL)
-	elasticSearchClient := elasticsearch.NewClient(cfg.ElasticSearchAPIURL, cfg.SignElasticsearchRequests, cfg.MaxRetries)
+
+	var awsSDKSigner *esauth.Signer
+	if cfg.SignElasticsearchRequests {
+		awsSDKSigner, err = esauth.NewAwsSigner("", "", cfg.AwsRegion, cfg.AwsService)
+		if err != nil {
+			log.Fatal(ctx, "failed to create aws v4 signer", err)
+			return err
+		}
+	}
+	elasticSearchHTTPClient := http.NewClient()
+	elasticSearchHTTPClient.SetMaxRetries(cfg.MaxRetries)
+	elasticSearchClient := elasticsearch.NewClientWithHTTPClientAndAwsSigner(cfg.ElasticSearchAPIURL, awsSDKSigner, cfg.SignElasticsearchRequests, elasticSearchHTTPClient)
 
 	// Add a list of checkers to HealthCheck
 	if err := registerCheckers(ctx, &hc, syncConsumerGroup, searchBuiltProducer, searchBuilderErrProducer, elasticSearchClient, *hierarchyClient); err != nil {
@@ -106,7 +117,7 @@ func run(ctx context.Context) error {
 
 	router := mux.NewRouter()
 	router.Path("/health").HandlerFunc(hc.Handler)
-	httpServer := server.New(cfg.BindAddr, router)
+	httpServer := http.NewServer(cfg.BindAddr, router)
 
 	// Disable auto handling of os signals by the HTTP server. This is handled
 	// in the service so we can gracefully shutdown resources other than just
@@ -117,7 +128,7 @@ func run(ctx context.Context) error {
 	errorChannel := make(chan error)
 
 	go func() {
-		log.Event(ctx, "starting http server", log.INFO, log.Data{"bind_addr": cfg.BindAddr})
+		log.Info(ctx, "starting http server", log.Data{"bind_addr": cfg.BindAddr})
 		if err := httpServer.ListenAndServe(); err != nil {
 			errorChannel <- err
 		}
@@ -125,28 +136,28 @@ func run(ctx context.Context) error {
 
 	hc.Start(ctx)
 
-	clienter := rchttp.NewClient()
+	clienter := http.NewClient()
 
-	log.Event(ctx, "application started", log.INFO, log.Data{"search_builder_url": cfg.SearchBuilderURL})
+	log.Info(ctx, "application started", log.Data{"search_builder_url": cfg.SearchBuilderURL})
 
 	consumer := event.NewConsumer(clienter, cfg.HierarchyAPIURL, elasticSearchClient, searchBuiltProducer, errorReporter)
 
 	// Start listening for event messages
-	consumer.Consume(syncConsumerGroup)
+	consumer.Consume(ctx, syncConsumerGroup)
 
-	syncConsumerGroup.Channels().LogErrors(ctx, "error received from kafka consumer, topic: "+cfg.ConsumerTopic)
-	searchBuiltProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.ProducerTopic)
-	searchBuilderErrProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.EventReporterTopic)
+	syncConsumerGroup.Channels().LogErrors(ctx, "error received from kafka consumer, topic: "+cfg.KafkaConfig.ConsumerTopic)
+	searchBuiltProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.KafkaConfig.ProducerTopic)
+	searchBuilderErrProducer.Channels().LogErrors(ctx, "error received from kafka producer, topic: "+cfg.KafkaConfig.EventReporterTopic)
 
 	// block until a fatal error, signal or eventLoopDone - then proceed to shutdown
 	select {
 	case signal := <-signals:
-		log.Event(ctx, "quitting after os signal received", log.INFO, log.Data{"signal": signal})
+		log.Info(ctx, "quitting after os signal received", log.Data{"signal": signal})
 	case <-errorChannel:
-		log.Event(ctx, "server error", log.ERROR, log.Error(errors.New("server error forcing shutdown")))
+		log.Error(ctx, "server error", errors.New("server error forcing shutdown"))
 	}
 
-	log.Event(ctx, fmt.Sprintf("shutdown with timeout: %s", cfg.GracefulShutdownTimeout), log.INFO)
+	log.Info(ctx, fmt.Sprintf("shutdown with timeout: %s", cfg.GracefulShutdownTimeout))
 	shutdownContext, shutdownCancel := context.WithTimeout(context.Background(), cfg.GracefulShutdownTimeout)
 
 	// track shutdown gracefully closes app
@@ -156,46 +167,46 @@ func run(ctx context.Context) error {
 		defer shutdownCancel()
 
 		if serviceList.HealthCheck {
-			log.Event(shutdownContext, "closing health check", log.INFO)
+			log.Info(shutdownContext, "closing health check")
 			hc.Stop()
-			log.Event(shutdownContext, "closed health check", log.INFO)
+			log.Info(shutdownContext, "closed health check")
 		}
 
-		log.Event(shutdownContext, "closing http server", log.INFO)
+		log.Info(shutdownContext, "closing http server")
 		err = httpServer.Shutdown(shutdownContext)
 		hasShutdownError = handleShutdownError(shutdownContext, "http server", err, hasShutdownError, nil)
 
 		// If kafka consumer exists, stop listening to it. (Will close later)
 		if serviceList.Consumer {
-			log.Event(shutdownContext, "closing kafka consumer listener", log.INFO, log.Data{"topic": cfg.ConsumerTopic})
+			log.Info(shutdownContext, "closing kafka consumer listener", log.Data{"topic": cfg.KafkaConfig.ConsumerTopic})
 			err = syncConsumerGroup.StopListeningToConsumer(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "kafka consumer listener", err, hasShutdownError, log.Data{"topic": cfg.ConsumerTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "kafka consumer listener", err, hasShutdownError, log.Data{"topic": cfg.KafkaConfig.ConsumerTopic})
 		}
 
 		// If search built kafka producer exists, close it
 		if serviceList.SearchBuiltProducer {
-			log.Event(shutdownContext, "closing search built kafka producer", log.INFO, log.Data{"topic": cfg.ProducerTopic})
+			log.Info(shutdownContext, "closing search built kafka producer", log.Data{"topic": cfg.KafkaConfig.ProducerTopic})
 			err = searchBuiltProducer.Close(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "search built kafka producer", err, hasShutdownError, log.Data{"topic": cfg.ProducerTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "search built kafka producer", err, hasShutdownError, log.Data{"topic": cfg.KafkaConfig.ProducerTopic})
 		}
 
 		// If dimension search builder error kafka producer exists, close it
 		if serviceList.SearchBuilderErrProducer {
-			log.Event(shutdownContext, "closing dimension search builder error kafka producer", log.INFO, log.Data{"topic": cfg.EventReporterTopic})
+			log.Info(shutdownContext, "closing dimension search builder error kafka producer", log.Data{"topic": cfg.KafkaConfig.EventReporterTopic})
 			err = searchBuilderErrProducer.Close(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "dimension search builder error kafka producer", err, hasShutdownError, log.Data{"topic": cfg.EventReporterTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "dimension search builder error kafka producer", err, hasShutdownError, log.Data{"topic": cfg.KafkaConfig.EventReporterTopic})
 		}
 
 		// Close consumer loop
-		log.Event(shutdownContext, "closing dimension search builder consumer loop", log.INFO)
+		log.Info(shutdownContext, "closing dimension search builder consumer loop")
 		err = consumer.Close(shutdownContext)
 		hasShutdownError = handleShutdownError(shutdownContext, "dimension search builder consumer loop", err, hasShutdownError, nil)
 
 		// If kafka consumer exists, close it
 		if serviceList.Consumer {
-			log.Event(shutdownContext, "closing kafka consumer", log.INFO, log.Data{"topic": cfg.ConsumerTopic})
+			log.Info(shutdownContext, "closing kafka consumer", log.Data{"topic": cfg.KafkaConfig.ConsumerTopic})
 			err = syncConsumerGroup.Close(shutdownContext)
-			hasShutdownError = handleShutdownError(shutdownContext, "kafka consumer", err, hasShutdownError, log.Data{"topic": cfg.ConsumerTopic})
+			hasShutdownError = handleShutdownError(shutdownContext, "kafka consumer", err, hasShutdownError, log.Data{"topic": cfg.KafkaConfig.ConsumerTopic})
 		}
 	}()
 
@@ -203,17 +214,17 @@ func run(ctx context.Context) error {
 	<-shutdownContext.Done()
 
 	if shutdownContext.Err() == context.DeadlineExceeded {
-		log.Event(shutdownContext, "graceful shutdown exceeded context deadline", log.ERROR, log.Error(shutdownContext.Err()))
+		log.Error(shutdownContext, "graceful shutdown exceeded context deadline", shutdownContext.Err())
 		return shutdownContext.Err()
 	}
 
 	if hasShutdownError {
 		err = errors.New("failed to shutdown gracefully")
-		log.Event(shutdownContext, "failed to shutdown gracefully ", log.ERROR, log.Error(err))
+		log.Error(shutdownContext, "failed to shutdown gracefully ", err)
 		return err
 	}
 
-	log.Event(shutdownContext, "graceful shutdown was successful", log.INFO)
+	log.Info(shutdownContext, "graceful shutdown was successful")
 
 	return nil
 }
@@ -230,27 +241,27 @@ func registerCheckers(ctx context.Context, hc *healthcheck.HealthCheck,
 
 	if err = hc.AddCheck("Kafka Consumer", kafkaConsumer.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "error adding check for kafka consumer", log.ERROR, log.Error(err))
+		log.Error(ctx, "error adding check for kafka consumer", err)
 	}
 
 	if err = hc.AddCheck("Kafka Search Built Producer", searchBuiltProducer.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "error adding check for kafka search built producer", log.ERROR, log.Error(err))
+		log.Error(ctx, "error adding check for kafka search built producer", err)
 	}
 
 	if err = hc.AddCheck("Kafka Error Producer", searchBuilderErrProducer.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "error adding check for kafka error producer", log.ERROR, log.Error(err))
+		log.Error(ctx, "error adding check for kafka error producer", err)
 	}
 
 	if err = hc.AddCheck("Elasticsearch", elasticsearchClient.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "error adding check for elasticsearch client", log.ERROR, log.Error(err))
+		log.Error(ctx, "error adding check for elasticsearch client", err)
 	}
 
 	if err = hc.AddCheck("Hierarchy API", hierarchyClient.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "error adding check for hierarchy client", log.ERROR, log.Error(err))
+		log.Error(ctx, "error adding check for hierarchy client", err)
 	}
 
 	if hasErrors {
@@ -263,11 +274,11 @@ func registerCheckers(ctx context.Context, hc *healthcheck.HealthCheck,
 func handleShutdownError(ctx context.Context, service string, err error, hasError bool, logData log.Data) bool {
 
 	if err != nil {
-		log.Event(ctx, "unsuccessfully closed "+service, log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "unsuccessfully closed "+service, err, logData)
 		return true
 	}
 
-	log.Event(ctx, "closed "+service, log.INFO, logData)
+	log.Info(ctx, "closed "+service, logData)
 
 	return hasError
 }

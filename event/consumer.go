@@ -7,9 +7,9 @@ import (
 
 	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
 	kafka "github.com/ONSdigital/dp-kafka/v2"
-	rchttp "github.com/ONSdigital/dp-rchttp"
+	"github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/dp-reporter-client/reporter"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // Consumer consumes event messages.
@@ -23,7 +23,7 @@ type Consumer struct {
 type Service struct {
 	ErrorReporter       reporter.ImportErrorReporter
 	HierarchyAPIURL     string
-	HTTPClienter        rchttp.Clienter
+	HTTPClienter        http.Clienter
 	SearchBuiltProducer *kafka.Producer
 	ElasticSearchClient *elasticsearch.Client
 }
@@ -33,7 +33,7 @@ type eventClose struct {
 }
 
 // NewConsumer returns a new consumer instance.
-func NewConsumer(clienter rchttp.Clienter, hierarchyAPIURL string, elasticSearchClient *elasticsearch.Client,
+func NewConsumer(clienter http.Clienter, hierarchyAPIURL string, elasticSearchClient *elasticsearch.Client,
 	searchBuiltProducer *kafka.Producer, errorReporter reporter.ImportErrorReporter) *Consumer {
 
 	service := Service{
@@ -54,7 +54,7 @@ func NewConsumer(clienter rchttp.Clienter, hierarchyAPIURL string, elasticSearch
 }
 
 // Consume handles consumption of events
-func (consumer *Consumer) Consume(messageConsumer *kafka.ConsumerGroup) {
+func (consumer *Consumer) Consume(ctx context.Context, messageConsumer *kafka.ConsumerGroup) {
 
 	// eventLoop
 	go func() {
@@ -63,30 +63,28 @@ func (consumer *Consumer) Consume(messageConsumer *kafka.ConsumerGroup) {
 		for {
 			select {
 			case msg := <-messageConsumer.Channels().Upstream:
-				ctx := context.Background()
-
 				instanceID, dimension, err := consumer.handleMessage(ctx, msg)
 				logData := log.Data{"func": "service.Start.eventLoop", "instance_id": instanceID, "dimension": dimension, "kafka_offset": msg.Offset()}
 				if err != nil {
-					log.Event(ctx, "event failed to process", log.ERROR, log.Error(err), logData)
+					log.Error(ctx, "event failed to process", err, logData)
 
 					if len(instanceID) == 0 {
-						log.Event(ctx, "instance_id is empty errorReporter.Notify will not be called", log.ERROR, log.Error(err), logData)
+						log.Error(ctx, "instance_id is empty errorReporter.Notify will not be called", err, logData)
 					} else {
 						message := fmt.Sprintf("event failed to process, dimension is [%s]", dimension)
 						err = consumer.Service.ErrorReporter.Notify(instanceID, message, err)
 						if err != nil {
-							log.Event(ctx, "ErrorProducer.Notify returned an error", log.ERROR, log.Error(err), logData)
+							log.Error(ctx, "ErrorProducer.Notify returned an error", err, logData)
 						}
 					}
 				} else {
-					log.Event(ctx, "event successfully processed", log.INFO, logData)
+					log.Info(ctx, "event successfully processed", logData)
 				}
 
 				msg.CommitAndRelease()
 
 			case eventClose := <-consumer.closing:
-				log.Event(eventClose.ctx, "closing event consumer loop", log.INFO)
+				log.Info(eventClose.ctx, "closing event consumer loop")
 				close(consumer.closing)
 				return
 			}
@@ -105,10 +103,10 @@ func (consumer *Consumer) Close(ctx context.Context) (err error) {
 
 	select {
 	case <-consumer.closed:
-		log.Event(ctx, "successfully closed event consumer", log.INFO)
+		log.Info(ctx, "successfully closed event consumer")
 		return nil
 	case <-ctx.Done():
-		log.Event(ctx, "shutdown context time exceeded, skipping graceful shutdown of event consumer", log.INFO)
+		log.Info(ctx, "shutdown context time exceeded, skipping graceful shutdown of event consumer")
 		return errors.New("Shutdown context timed out")
 	}
 }

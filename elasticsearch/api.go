@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
-	rchttp "github.com/ONSdigital/dp-rchttp"
 	"github.com/ONSdigital/dp-dimension-search-builder/models"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/dp-elasticsearch/v2/elasticsearch"
+	"github.com/ONSdigital/dp-net/http"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 const indexTypeDimensionOption string = "dimension_option"
@@ -19,12 +19,12 @@ var ErrorUnexpectedStatusCode = errors.New("unexpected status code from api")
 
 // API aggregates a client and URL and other common data for accessing the API
 type API struct {
-	clienter            rchttp.Clienter
+	clienter            http.Clienter
 	elasticSearchClient *elasticsearch.Client
 }
 
 // NewElasticSearchAPI creates an ElasticSearchAPI object
-func NewElasticSearchAPI(clienter rchttp.Clienter, elasticSearchClient *elasticsearch.Client) *API {
+func NewElasticSearchAPI(clienter http.Clienter, elasticSearchClient *elasticsearch.Client) *API {
 
 	return &API{
 		clienter:            clienter,
@@ -63,7 +63,7 @@ func (api *API) DeleteSearchIndex(ctx context.Context, instanceID, dimension str
 
 // AddDimensionOption adds a document to an elastic search index
 func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension string, dimensionOption models.DimensionOption) (int, error) {
-	log.Event(ctx, "adding dimension option", log.INFO, log.Data{"dimension_option": dimensionOption})
+	log.Info(ctx, "adding dimension option", log.Data{"dimension_option": dimensionOption})
 	if dimensionOption.Code == "" {
 		return 0, errors.New("missing dimension option code")
 	}

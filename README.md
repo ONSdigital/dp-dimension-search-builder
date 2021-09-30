@@ -1,5 +1,4 @@
-dp-dimension-search-builder
-===========================
+# dp-dimension-search-builder
 
 Handles inserting of dimension options into elasticsearch once a hierarchy for an instance becomes available;
 and creates an event by sending a message to the kafka `$PRODUCER_TOPIC` so services know when the data has successfully been inserted into elastic.
@@ -10,8 +9,8 @@ and creates an event by sending a message to the kafka `$PRODUCER_TOPIC` so serv
 4. Retrieves all nodes in the tree below the root node and writing the data to the elasticsearch index
 5. Produces a message to the `$SEARCH_BUILT_TOPIC`
 
-Requirements
------------------
+## Requirements
+
 In order to run the service locally you will need the following:
 - [Go](https://golang.org/doc/install)
 - [Git](https://git-scm.com/downloads)
@@ -21,7 +20,7 @@ In order to run the service locally you will need the following:
 
 Refer to https://github.com/ONSdigital/dp-import#dp-import for infrastructure setup of service
 
-### Getting started
+## Getting started
 
 * Clone the repo `go get github.com/ONSdigital/dp-dimension-search-builder`
 * Run zookeeper and then kafka
@@ -45,6 +44,8 @@ Scripts for updating and debugging Kafka can be found [here](https://github.com/
 
 | Environment variable         | Default                              | Description
 | ---------------------------- | -------------------------------------| -----------
+| AWS_REGION                   | eu-west-1                            | The AWS region to use when signing requests with AWS SDK
+| AWS_SERVICE                  | "es"                                 | The aws service that the AWS SDK signing mechanism needs to sign a request
 | BIND_ADDR                    | :22900                               | The host and port to bind to
 | CONSUMER_GROUP               | dp-dimension-search-builder          | The name of the Kafka consumer group
 | ELASTIC_SEARCH_URL           | http://localhost:10200               | The host name for elasticsearch
@@ -54,13 +55,23 @@ Scripts for updating and debugging Kafka can be found [here](https://github.com/
 | HEALTHCHECK_CRITICAL_TIMEOUT | 90s                                  | The time taken for the health changes from warning state to critical due to subsystem check failures
 | HIERARCHY_API_URL            | http://localhost:22600               | The host name for the Hierarchy API
 | HIERARCHY_BUILT_TOPIC        | hierarchy-built                      | The name of the topic to consume messages from
+| PRODUCER_TOPIC               | dimension-search-built               | The name of the topic to produces messages to
 | KAFKA_ADDR                   | localhost:9092                       | A list of Kafka host addresses
 | KAFKA_MAX_BYTES              | 2000000                              | The max message size for kafka producer
-| PRODUCER_TOPIC               | dimension-search-built               | The name of the topic to produces messages to
+| KAFKA_VERSION                | "1.0.2"                              | The kafka version that this service expects to connect to
+| KAFKA_OFFSET_OLDEST          | true                                 | sets kafka offset to oldest if `true`
+| KAFKA_SEC_PROTO              | _unset_                              | if set to `TLS`, kafka connections will use TLS [[1]](#notes_1)
+| KAFKA_SEC_CLIENT_KEY         | _unset_                              | PEM for the client key [[1]](#notes_1)
+| KAFKA_SEC_CLIENT_CERT        | _unset_                              | PEM for the client certificate [[1]](#notes_1)
+| KAFKA_SEC_CA_CERTS           | _unset_                              | CA cert chain for the server cert [[1]](#notes_1)
+| KAFKA_SEC_SKIP_VERIFY        | false                                | ignores server certificate issues if `true` [[1]](#notes_1)
 | REQUEST_MAX_RETRIES          | 3                                    | The maximum number of request retries messages from
 | SEARCH_BUILDER_URL           | http://localhost:22900               | The host name for the service
 | SIGN_ELASTICSEARCH_REQUESTS  | false                                | Boolean flag to identify whether elasticsearch requests via elastic API need to be signed if elasticsearch cluster is running in aws
 
+**Notes:**
+
+1. <a name="notes_1">For more info, see the [kafka TLS examples documentation](https://github.com/ONSdigital/dp-kafka/tree/main/examples#tls)</a>
 
 ### Contributing
 
