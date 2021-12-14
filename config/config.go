@@ -57,7 +57,7 @@ func getDefaultConfig() *Config {
 		HealthCheckCriticalTimeout: 90 * time.Second,
 		HierarchyAPIURL:            "http://localhost:22600",
 		KafkaConfig: KafkaConfig{
-			BindAddr:           []string{"localhost:9092"},
+			BindAddr:           []string{"localhost:9092", "localhost:9093", "localhost:9094"},
 			MaxBytes:           "2000000",
 			Version:            "1.0.2",
 			SecProtocol:        "",
