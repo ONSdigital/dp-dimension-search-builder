@@ -104,20 +104,20 @@ func (e *ExternalServiceList) GetProducer(ctx context.Context, kafkaConfig confi
 	case name == SearchBuilderErr:
 		e.SearchBuilderErrProducer = true
 	default:
-		err = fmt.Errorf("Kafka producer name not recognised: '%s'. Valid names: %v", name.String(), kafkaProducerNames)
+		err = fmt.Errorf("kafka producer name not recognised: '%s'. Valid names: %v", name.String(), kafkaProducerNames)
 	}
 
 	return
 }
 
 // GetImportErrorReporter returns an ErrorImportReporter to send error reports to the import-reporter (only if ObservationsImportedErrProducer is available)
-func (e *ExternalServiceList) GetImportErrorReporter(SearchBuilderErrProducer reporter.KafkaProducer, serviceName string) (errorReporter reporter.ImportErrorReporter, err error) {
+func (e *ExternalServiceList) GetImportErrorReporter(searchBuilderErrProducer reporter.KafkaProducer, serviceName string) (errorReporter reporter.ImportErrorReporter, err error) {
 	if !e.SearchBuilderErrProducer {
 		return reporter.ImportErrorReporter{},
-			fmt.Errorf("Cannot create ImportErrorReporter because kafka producer '%s' is not available", kafkaProducerNames[SearchBuilderErr])
+			fmt.Errorf("cannot create ImportErrorReporter because kafka producer '%s' is not available", kafkaProducerNames[SearchBuilderErr])
 	}
 
-	errorReporter, err = reporter.NewImportErrorReporter(SearchBuilderErrProducer, serviceName)
+	errorReporter, err = reporter.NewImportErrorReporter(searchBuilderErrProducer, serviceName)
 	if err != nil {
 		return
 	}

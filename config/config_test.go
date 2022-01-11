@@ -29,7 +29,7 @@ func TestGet(t *testing.T) {
 					So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
 					So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
 					So(cfg.HierarchyAPIURL, ShouldEqual, "http://localhost:22600")
-					So(cfg.KafkaConfig.BindAddr[0], ShouldEqual, "localhost:9092")
+					So(cfg.KafkaConfig.BindAddr, ShouldResemble, []string{"localhost:9092", "localhost:9093", "localhost:9094"})
 					So(cfg.KafkaConfig.MaxBytes, ShouldEqual, "2000000")
 					So(cfg.KafkaConfig.Version, ShouldEqual, "1.0.2")
 					So(cfg.KafkaConfig.SecProtocol, ShouldEqual, "")
