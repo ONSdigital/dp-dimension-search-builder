@@ -3,10 +3,10 @@ package event
 import (
 	"context"
 
-	hierarchyModel "github.com/ONSdigital/dp-hierarchy-api/models"
 	"github.com/ONSdigital/dp-dimension-search-builder/elasticsearch"
 	"github.com/ONSdigital/dp-dimension-search-builder/hierarchy"
 	"github.com/ONSdigital/dp-dimension-search-builder/models"
+	hierarchyModel "github.com/ONSdigital/dp-hierarchy-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
