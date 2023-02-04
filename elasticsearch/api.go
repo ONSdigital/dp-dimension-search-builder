@@ -36,10 +36,7 @@ func NewElasticSearchAPI(clienter http.Clienter, elasticSearchClient *elasticsea
 func (api *API) CreateSearchIndex(ctx context.Context, instanceID, dimension string) (int, error) {
 	indexName := instanceID + "_" + dimension
 
-	indexMappings, err := Asset("mappings.json")
-	if err != nil {
-		return 0, err
-	}
+	indexMappings := GetMappingsJSON()
 
 	status, err := api.elasticSearchClient.CreateIndex(ctx, indexName, indexMappings)
 	if err != nil {

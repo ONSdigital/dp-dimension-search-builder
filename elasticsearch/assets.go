@@ -1,4 +1,10 @@
-//go:generate go get github.com/jteeuwen/go-bindata/go-bindata
-//go:generate go-bindata -pkg elasticsearch ./mappings.json
-
 package elasticsearch
+
+import _ "embed"
+
+//go:embed mappings.json
+var mappingsJSON []byte
+
+func GetMappingsJSON() []byte {
+	return mappingsJSON
+}
