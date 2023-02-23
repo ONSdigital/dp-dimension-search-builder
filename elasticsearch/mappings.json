@@ -31,7 +31,6 @@
 		}
 	},
 	"mappings": {
-		"dimension_option": {
 			"properties": {
 				"code": {
 					"fields": {
@@ -69,5 +68,5 @@
 				}
 			}
 		}
-	}
+
 }
