@@ -11,8 +11,6 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-const indexTypeDimensionOption string = "dimension_option"
-
 // ErrorUnexpectedStatusCode represents the error message to be returned when
 // the status received from elastic is not as expected
 var ErrorUnexpectedStatusCode = errors.New("unexpected status code from api")
@@ -73,7 +71,7 @@ func (api *API) AddDimensionOption(ctx context.Context, instanceID, dimension st
 		return 0, err
 	}
 
-	status, err := api.elasticSearchClient.AddDocument(ctx, indexName, indexTypeDimensionOption, documentID, document)
+	status, err := api.elasticSearchClient.AddDocument(ctx, indexName, "_doc", documentID, document)
 	if err != nil {
 		return status, err
 	}
