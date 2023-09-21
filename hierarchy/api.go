@@ -9,7 +9,7 @@ import (
 	"net/url"
 
 	"github.com/ONSdigital/dp-hierarchy-api/models"
-	dphttp "github.com/ONSdigital/dp-net/http"
+	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 

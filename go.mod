@@ -17,7 +17,7 @@ require (
 	github.com/ONSdigital/dp-hierarchy-api v1.8.0
 	github.com/ONSdigital/dp-import v1.2.1
 	github.com/ONSdigital/dp-kafka/v2 v2.8.0
-	github.com/ONSdigital/dp-net v1.5.0
+	github.com/ONSdigital/dp-net/v2 v2.11.0
 	github.com/ONSdigital/dp-reporter-client v1.1.0
 	github.com/ONSdigital/go-ns v0.0.0-20210831102424-ebdecc20fe9e // indirect
 	github.com/ONSdigital/log.go/v2 v2.4.1
@@ -28,13 +28,13 @@ require (
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/smartystreets/goconvey v1.8.0
-	golang.org/x/net v0.8.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/net v0.14.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
 )
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.252.0 // indirect
-	github.com/ONSdigital/dp-net/v2 v2.9.1 // indirect
+	github.com/ONSdigital/dp-net v1.5.0 // indirect
 	github.com/ONSdigital/log.go v1.1.0 // indirect
 	github.com/Shopify/sarama v1.30.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -59,5 +59,5 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/smartystreets/assertions v1.13.1 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/crypto v0.12.0 // indirect
 )
