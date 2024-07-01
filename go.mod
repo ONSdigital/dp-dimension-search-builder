@@ -10,6 +10,12 @@ exclude github.com/gorilla/sessions v1.2.1
 //     - sonatype-2021-1401 # pkg:golang/github.com/miekg/dns@v1.0.14
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 
+// [CVE-2023-48795] CWE-354: Improper Validation of Integrity Check Value
+replace golang.org/x/crypto => golang.org/x/crypto v0.17.0
+
+// [CVE-2023-39325] CWE-770: Allocation of Resources Without Limits or Throttling
+replace golang.org/x/net => golang.org/x/net v0.23.0
+
 require (
 	github.com/ONSdigital/dp-api-clients-go v1.43.0
 	github.com/ONSdigital/dp-elasticsearch/v2 v2.2.0
@@ -29,7 +35,7 @@ require (
 	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/smartystreets/goconvey v1.8.0
 	golang.org/x/net v0.14.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 )
 
 require (
@@ -59,5 +65,5 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/smartystreets/assertions v1.13.1 // indirect
-	golang.org/x/crypto v0.12.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
 )
